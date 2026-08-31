@@ -12,7 +12,7 @@ export default function FeaturesPage() {
     <main className="marketing-page">
       <section className="marketing-hero">
         <div>
-          <span className="marketing-eyebrow">FEATURES</span>
+          
           <h1>Everything you need to give your stream a voice.</h1>
           <p>Powerful interaction tools designed to make live audience engagement feel natural without getting in the way of your content.</p>
         </div>

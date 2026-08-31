@@ -3,7 +3,6 @@ export default function AboutPage() {
     <main className="marketing-page">
       <section className="marketing-hero">
         <div>
-          <span className="marketing-eyebrow">ABOUT ECHOSTREAM</span>
           <h1>Make your community part of the stream.</h1>
           <p>EchoStream turns live audience messages into expressive AI voices, helping creators make every interaction feel immediate, personal, and alive.</p>
         </div>

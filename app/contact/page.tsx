@@ -9,7 +9,7 @@ export default function ContactPage() {
     <main className="marketing-page">
       <section className="marketing-hero">
         <div>
-          <span className="marketing-eyebrow">GET IN TOUCH</span>
+          
           <h1>Contact Us</h1>
           <p>Have a question, feedback, or want to talk about EchoStream? Send us a message and we&apos;ll get back to you.</p>
         </div>

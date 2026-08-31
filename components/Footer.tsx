@@ -1,3 +1,4 @@
+'use client'
 import { logoFacebook, logoInstagram, logoTiktok, logoTwitter, sendOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
 import "./Footer.css";
