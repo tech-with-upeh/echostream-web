@@ -40,12 +40,7 @@ export default function Home() {
             <a className="hero-cta" href="#get-started">Get Started <span>↗</span></a>
           </div>
 
-          <div className="hero-audio" aria-hidden="true">
-            <div className="audio-orb" />
-            <div className="wave-bars">
-              {bars.map((height, index) => <i key={index} style={{ height: `${height}%`, animationDelay: `${(index % 9) * -0.13}s` }} />)}
-            </div>
-          </div>
+          
         </div>
       </section>
     </main>
