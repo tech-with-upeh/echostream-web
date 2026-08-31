@@ -1,5 +1,3 @@
-const bars = [38, 62, 28, 78, 45, 92, 58, 34, 70, 100, 54, 82, 36, 68, 94, 48, 76, 32, 64, 88, 42, 72, 30, 58, 84, 46, 66, 96, 52, 74, 40, 86, 60, 35, 80, 50, 69, 31, 91, 55];
-
 export default function Home() {
   return (
     <main id="home" className="site-shell">
@@ -42,9 +40,7 @@ export default function Home() {
 
           <div className="hero-audio" aria-hidden="true">
             <div className="audio-orb" />
-            <div className="wave-bars">
-              {bars.map((height, index) => <i key={index} style={{ height: `${height}%`, animationDelay: `${(index % 9) * -0.13}s` }} />)}
-            </div>
+            
           </div>
         </div>
       </section>
