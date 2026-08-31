@@ -148,7 +148,7 @@ export default function Home() {
               alive.
             </p>
             <div className="hero-actions">
-              <a className="hero-cta" href="#get-started">
+              <a className="hero-cta" href="/login">
                 Get Started
               </a>
               <div className="hero-downloads">
