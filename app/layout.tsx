@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Poppins, DM_Sans } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-const poppins = DM_Sans({ variable: "--font-poppins", subsets: ["latin"], weight: "300"});
+const dmSans = DM_Sans({ variable: "--font-poppins", subsets: ["latin"], weight: "300" });
 
 export const metadata: Metadata = {
   title: "EchoStream — Let your community be heard",
@@ -11,8 +13,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={`${dmSans.variable} h-full antialiased`}>
+      <body className="min-h-full">
+        <Navbar />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
