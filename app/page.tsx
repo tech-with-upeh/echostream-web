@@ -5,6 +5,8 @@ import {
   menuOutline,
   closeOutline,
   play,
+  logoApple,
+  logoGooglePlaystore,
   micOutline,
   optionsOutline,
   rocketOutline,
@@ -92,18 +94,15 @@ export default function Home() {
             <p>Turn your audience&apos;s messages into a voice your stream can hear. Make every live moment more interactive, expressive, and alive.</p>
             <div className="hero-actions">
               <a className="hero-cta" href="#get-started">Get Started</a>
-              <a className="hero-app-cta" href="https://example.com/echostream-app" target="_blank" rel="noreferrer">Get the App</a>
-            </div>
-            <div className="hero-app-note">
-              <div className="hero-qr" aria-label="Demo QR code for the EchoStream mobile app">
-                <div className="hero-qr-grid">
-                  {Array.from({ length: 25 }).map((_, index) => <span key={index} className={index % 3 === 0 || index % 7 === 0 ? "is-filled" : ""} />)}
-                </div>
-              </div>
-              <div>
-                <strong>EchoStream for mobile</strong>
-                <span>Scan to get the app</span>
-                <small>App download coming soon</small>
+              <div className="hero-downloads">
+                <a className="hero-download-button" href="#app-store" aria-label="Download EchoStream on the App Store">
+                  <IonIcon icon={logoApple} aria-hidden="true" />
+                  <span>Download on App Store</span>
+                </a>
+                <a className="hero-download-button" href="#play-store" aria-label="Download EchoStream on the Play Store">
+                  <IonIcon icon={logoGooglePlaystore} aria-hidden="true" />
+                  <span>Download on Play Store</span>
+                </a>
               </div>
             </div>
           </div>
