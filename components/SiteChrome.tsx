@@ -6,9 +6,9 @@ import Footer from "@/components/Footer";
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
+  const isStandalonePage = pathname === "/" || pathname === "/login";
 
-  if (isLoginPage) {
+  if (isStandalonePage) {
     return <>{children}</>;
   }
 
