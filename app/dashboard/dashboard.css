@@ -21,5 +21,19 @@
 .dashboard-avatar img{width:100%;height:100%;object-fit:cover}
 .dashboard-profile-label{color:var(--foreground)}
 .dashboard-content{width:min(1240px,calc(100% - 48px));margin:0 auto;min-height:calc(100vh - 76px);padding:50px 0}
-.dashboard-content:empty{padding:0}
-@media(max-width:768px){.dashboard-navbar{width:min(100% - 28px,1240px);height:68px}.dashboard-brand{font-size:19px}.dashboard-brand img{width:27px;height:27px}.dashboard-nav-actions{gap:15px}.dashboard-nav-link{font-size:13px}.dashboard-profile-label{display:none}.dashboard-profile-trigger{padding:0}.dashboard-content{width:calc(100% - 28px)}}
+.dashboard-overview{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:24px;align-items:stretch;max-width:980px;margin:0 auto}
+.dashboard-plan-card,.dashboard-action-card{border:1px solid rgba(255,255,255,.1);background:#101618;border-radius:20px}
+.dashboard-plan-card{position:relative;min-height:250px;padding:34px}
+.dashboard-plan-badge{position:absolute;top:0;left:0;padding:8px 14px;border-radius:0 0 12px 0;background:var(--highlight);color:#0b0f11;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.dashboard-plan-heading{display:flex;align-items:center;gap:14px;margin-top:18px}
+.dashboard-plan-heading img{width:42px;height:42px;object-fit:contain}
+.dashboard-plan-heading h1{margin:0;font-size:28px;letter-spacing:-.8px}
+.dashboard-billing-copy{margin:32px 0 18px;color:var(--muted);font-size:15px;line-height:1.7}
+.dashboard-billing-copy strong{color:var(--foreground);font-weight:600}
+.dashboard-card-details{margin:0;color:var(--foreground);font-size:14px;letter-spacing:.1px}
+.dashboard-card-details span{margin:0 8px;color:var(--muted)}
+.dashboard-actions{display:grid;grid-template-rows:1fr 1fr;gap:24px}
+.dashboard-action-card{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;color:var(--foreground);font-size:15px;font-weight:600;cursor:pointer;transition:border-color .2s ease,background .2s ease,transform .2s ease}
+.dashboard-action-card:hover{border-color:rgba(110,231,229,.35);background:#131b1d;transform:translateY(-1px)}
+.dashboard-action-card ion-icon{width:21px;height:21px;color:var(--accent)}
+@media(max-width:768px){.dashboard-navbar{width:min(100% - 28px,1240px);height:68px}.dashboard-brand{font-size:19px}.dashboard-brand img{width:27px;height:27px}.dashboard-nav-actions{gap:15px}.dashboard-nav-link{font-size:13px}.dashboard-profile-label{display:none}.dashboard-profile-trigger{padding:0}.dashboard-content{width:calc(100% - 28px);padding:32px 0}.dashboard-overview{grid-template-columns:1fr;gap:16px}.dashboard-plan-card{min-height:230px;padding:28px 22px}.dashboard-actions{min-height:180px;gap:16px}.dashboard-action-card{min-height:82px}}
