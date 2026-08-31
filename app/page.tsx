@@ -1,5 +1,3 @@
-const bars = [38, 62, 28, 78, 45, 92, 58, 34, 70, 100, 54, 82, 36, 68, 94, 48, 76, 32, 64, 88, 42, 72, 30, 58, 84, 46, 66, 96, 52, 74, 40, 86, 60, 35, 80, 50, 69, 31, 91, 55];
-
 export default function Home() {
   return (
     <main id="home">
@@ -22,25 +20,20 @@ export default function Home() {
         <div className="hero-glow hero-glow-one" />
         <div className="hero-glow hero-glow-two" />
 
-        <svg className="wire-wave" viewBox="0 0 1440 760" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M-40 505 C 100 220, 250 760, 410 425 S 700 130, 820 450 S 1070 700, 1190 330 S 1370 180, 1510 510" />
-          <path d="M-40 555 C 110 290, 250 710, 420 480 S 690 210, 820 500 S 1060 640, 1190 390 S 1370 250, 1510 555" />
-          <path d="M-40 610 C 120 370, 270 650, 440 535 S 700 290, 830 555 S 1050 590, 1190 450 S 1380 320, 1510 610" />
-          <path d="M-40 450 C 100 150, 240 810, 400 370 S 700 70, 820 390 S 1080 760, 1200 260 S 1380 110, 1510 450" />
-        </svg>
+        <div className="hero-wave" aria-hidden="true">
+          <img src="/wave.gif" alt="" />
+        </div>
 
         <div className="hero-content">
           <div className="hero-copy">
+            <p className="hero-eyebrow">LIVE STREAM INTERACTION</p>
             <h1>EchoStream</h1>
-            <p>Turn your audience&apos;s messages into a voice your stream can hear. Make every live moment more interactive, expressive, and alive.</p>
-            <a className="hero-cta" href="#get-started">Get Started <span>↗</span></a>
-          </div>
-
-          <div className="hero-audio" aria-label="Animated audio waveform">
-            <div className="audio-orb" />
-            <div className="wave-bars">
-              {bars.map((height, index) => <i key={index} style={{ height: `${height}%`, animationDelay: `${(index % 9) * -0.13}s` }} />)}
-            </div>
+            <p className="hero-description">
+              Turn your audience&apos;s messages into a voice your stream can hear. Make every live moment more interactive, expressive, and alive.
+            </p>
+            <a className="hero-cta" href="#get-started">
+              Get Started <span>↗</span>
+            </a>
           </div>
         </div>
       </section>
