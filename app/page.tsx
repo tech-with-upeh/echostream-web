@@ -95,13 +95,13 @@ export default function Home() {
             <div className="hero-actions">
               <a className="hero-cta" href="#get-started">Get Started</a>
               <div className="hero-downloads">
-                <a className="hero-download-button" href="#app-store" aria-label="Download EchoStream on the App Store">
-                  <IonIcon icon={logoApple} aria-hidden="true" />
-                  <span>Download on App Store</span>
+                <a className="hero-download-button inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.045] px-4 py-2.5 text-sm font-medium text-white/90 shadow-[0_8px_30px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)]/35 hover:bg-white/[0.08] hover:text-white hover:shadow-[0_10px_34px_rgba(110,231,229,0.08)] active:translate-y-0" href="#app-store" aria-label="Download EchoStream on the App Store">
+                  <IonIcon icon={logoApple} aria-hidden="true" className="h-[21px] w-[21px] shrink-0" />
+                  <span className="whitespace-nowrap">Download on App Store</span>
                 </a>
-                <a className="hero-download-button" href="#play-store" aria-label="Download EchoStream on the Play Store">
-                  <IonIcon icon={logoGooglePlaystore} aria-hidden="true" />
-                  <span>Download on Play Store</span>
+                <a className="hero-download-button inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.045] px-4 py-2.5 text-sm font-medium text-white/90 shadow-[0_8px_30px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--highlight)]/35 hover:bg-white/[0.08] hover:text-white hover:shadow-[0_10px_34px_rgba(229,245,74,0.08)] active:translate-y-0" href="#play-store" aria-label="Download EchoStream on the Play Store">
+                  <IonIcon icon={logoGooglePlaystore} aria-hidden="true" className="h-[21px] w-[21px] shrink-0" />
+                  <span className="whitespace-nowrap">Download on Play Store</span>
                 </a>
               </div>
             </div>
