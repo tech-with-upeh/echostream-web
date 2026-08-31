@@ -1,4 +1,5 @@
 import DashboardNavbar from "@/components/DashboardNavbar";
+import "./dashboard.css";
 
 export default function DashboardPage() {
   return (
