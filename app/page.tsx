@@ -1,3 +1,6 @@
+import { MenuOutline } from "ionicons/icons";
+import { IonIcon } from "@ionic/react";
+
 export default function Home() {
   return (
     <main id="home" className="site-shell">
@@ -13,9 +16,7 @@ export default function Home() {
             </div>
             <a className="get-started" href="#get-started">Get Started</a>
             <button className="mobile-menu" type="button" aria-label="Open navigation menu">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
-              </svg>
+              <IonIcon icon={MenuOutline} aria-hidden="true" />
             </button>
           </div>
         </nav>
@@ -30,7 +31,7 @@ export default function Home() {
           <path d="M-40 555 C 110 290, 250 710, 420 480 S 690 210, 820 500 S 1060 640, 1190 390 S 1370 250, 1510 555" />
           <path d="M-40 610 C 120 370, 270 650, 440 535 S 700 290, 830 555 S 1050 590, 1190 450 S 1380 320, 1510 610" />
           <path d="M-40 450 C 100 150, 240 810, 400 370 S 700 70, 820 390 S 1080 760, 1200 260 S 1380 110, 1510 450" />
-        </svg> 
+        </svg>
 
         <svg className="wire-wave wire-wave-md" viewBox="0 0 430 900" preserveAspectRatio="none" aria-hidden="true">
           <path d="M-120 900 C 20 760, 30 620, 125 560 S 260 390, 210 280 S 330 110, 520 -40" />
