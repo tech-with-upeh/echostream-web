@@ -27,6 +27,20 @@ export default function Home() {
           <path d="M-40 450 C 100 150, 240 810, 400 370 S 700 70, 820 390 S 1080 760, 1200 260 S 1380 110, 1510 450" />
         </svg>
 
+        <svg className="hero-bg-circles" viewBox="0 0 1005.84 502.92" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <filter id="hero-bg-blur"><feGaussianBlur in="SourceGraphic" stdDeviation="0" /></filter>
+          </defs>
+          <rect className="hero-bg-base" x="0" y="0" width="1005.84" height="502.92" />
+          <g filter="url(#hero-bg-blur)">
+            <circle cx="112.5" cy="135.5" r="109" fill="#e5f54a" opacity="0.045" />
+            <circle cx="1063.5" cy="266.5" r="125" fill="#6ee7e5" opacity="0.04" />
+            <circle cx="180.4325" cy="282.8925" r="62.865" fill="#6ee7e5" opacity="0.035" />
+            <circle cx="534.3525" cy="284.4325" r="62.865" fill="#e5f54a" opacity="0.03" />
+            <circle cx="99" cy="223" r="66" fill="#e5f54a" opacity="0.035" />
+          </g>
+        </svg>
+
         <div className="hero-wave" aria-hidden="true">
           <img src="/wave.gif" alt="" />
         </div>
@@ -40,7 +54,6 @@ export default function Home() {
 
           <div className="hero-audio" aria-hidden="true">
             <div className="audio-orb" />
-            
           </div>
         </div>
       </section>
