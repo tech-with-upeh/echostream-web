@@ -32,14 +32,18 @@ a { color: inherit; text-decoration: none; }
 .hero-glow-one { width: 380px; height: 300px; background: var(--highlight); left: -190px; top: 34%; }
 .hero-glow-two { width: 380px; height: 300px; background: var(--accent); right: -180px; top: 7%; }
 
-.wire-wave { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -3; opacity: .46; pointer-events: none; }
+.wire-wave { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; opacity: .46; pointer-events: none; }
 .wire-wave path { fill: none; stroke: rgba(150,202,202,.12); stroke-width: 4.05; vector-effect: non-scaling-stroke; }
 .wire-wave path:nth-child(2) { stroke: rgba(229,245,74,.075); }
 .wire-wave path:nth-child(3) { stroke: rgba(110,231,229,.065); }
 .wire-wave path:nth-child(4) { stroke: rgba(255,255,255,.035); }
 
+.hero-bg-circles { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -3; pointer-events: none; opacity: 1; }
+.hero-bg-base { fill: transparent; }
+.hero-bg-circles circle { filter: blur(0); }
+
 .hero-wave { 
-  z-index: -2;
+  z-index: -1;
   pointer-events: none;
   opacity: .42;
   justify-content: flex-end;
