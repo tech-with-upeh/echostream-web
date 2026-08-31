@@ -12,6 +12,11 @@ export default function Home() {
               <a href="#contact">Contact</a>
             </div>
             <a className="get-started" href="#get-started">Get Started</a>
+            <button className="mobile-menu" type="button" aria-label="Open navigation menu">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+              </svg>
+            </button>
           </div>
         </nav>
       </header>
@@ -27,17 +32,12 @@ export default function Home() {
           <path d="M-40 450 C 100 150, 240 810, 400 370 S 700 70, 820 390 S 1080 760, 1200 260 S 1380 110, 1510 450" />
         </svg> 
 
-<svg
-  className="wire-wave wire-wave-md"
-  viewBox="0 0 430 900"
-  preserveAspectRatio="none"
-  aria-hidden="true"
->
-  <path d="M-120 900 C 20 760, 30 620, 125 560 S 260 390, 210 280 S 330 110, 520 -40" />
-  <path d="M-120 950 C 30 800, 45 670, 145 600 S 280 430, 230 320 S 350 150, 540 -20" />
-  <path d="M-120 1000 C 40 850, 60 720, 165 645 S 300 470, 250 360 S 370 190, 560 30" />
-  <path d="M-100 840 C 15 700, 20 570, 105 505 S 235 340, 190 230 S 300 80, 480 -80" />
-</svg>
+        <svg className="wire-wave wire-wave-md" viewBox="0 0 430 900" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M-120 900 C 20 760, 30 620, 125 560 S 260 390, 210 280 S 330 110, 520 -40" />
+          <path d="M-120 950 C 30 800, 45 670, 145 600 S 280 430, 230 320 S 350 150, 540 -20" />
+          <path d="M-120 1000 C 40 850, 60 720, 165 645 S 300 470, 250 360 S 370 190, 560 30" />
+          <path d="M-100 840 C 15 700, 20 570, 105 505 S 235 340, 190 230 S 300 80, 480 -80" />
+        </svg>
 
         <svg className="hero-bg-circles" viewBox="0 0 1005.84 502.92" preserveAspectRatio="none" aria-hidden="true">
           <defs>
