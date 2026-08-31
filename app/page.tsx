@@ -33,11 +33,11 @@ export default function Home() {
           </defs>
           <rect className="hero-bg-base" x="0" y="0" width="1005.84" height="502.92" />
           <g filter="url(#hero-bg-blur)">
-            <circle cx="112.5" cy="135.5" r="109" fill="#e5f54a" opacity="0.045" />
-            <circle cx="1063.5" cy="266.5" r="125" fill="#6ee7e5" opacity="0.04" />
-            <circle cx="180.4325" cy="282.8925" r="62.865" fill="#6ee7e5" opacity="0.035" />
-            <circle cx="534.3525" cy="284.4325" r="62.865" fill="#e5f54a" opacity="0.03" />
-            <circle cx="99" cy="223" r="66" fill="#e5f54a" opacity="0.035" />
+            <circle cx="112.5" cy="135.5" r="109" fill="#e5f54a" opacity="0.035" />
+            <circle cx="1063.5" cy="266.5" r="125" fill="#6ee7e5" opacity="0.01" />
+            <circle cx="180.4325" cy="282.8925" r="62.865" fill="#6ee7e5" opacity="0.025" />
+            <circle cx="534.3525" cy="284.4325" r="62.865" fill="#e5f54a" opacity="0.01" />
+            <circle cx="99" cy="223" r="66" fill="#e5f54a" opacity="0.0225" />
           </g>
         </svg>
 
