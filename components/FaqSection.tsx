@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "./FaqSection.css";
 
 const faqs = [
   {
@@ -32,35 +33,16 @@ export default function FaqSection() {
     <section id="faq" className="faq-section">
       <div className="faq-inner">
         <h2>FAQ&apos;s</h2>
-
         <div className="faq-list">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
-
             return (
-              <article
-                className={`faq-item ${isOpen ? "is-open" : ""}`}
-                key={faq.question}
-              >
-                <button
-                  className="faq-question"
-                  type="button"
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                  aria-expanded={isOpen}
-                >
-                  <span className="faq-toggle" aria-hidden="true">
-                    {isOpen ? "−" : "+"}
-                  </span>
+              <article className={`faq-item ${isOpen ? "is-open" : ""}`} key={faq.question}>
+                <button className="faq-question" type="button" onClick={() => setOpenIndex(isOpen ? null : index)} aria-expanded={isOpen}>
+                  <span className="faq-toggle" aria-hidden="true">{isOpen ? "−" : "+"}</span>
                   <span>{faq.question}</span>
                 </button>
-
-                {isOpen && (
-                  <div className="faq-answer-wrap">
-                    <div className="faq-answer">
-                      <p>{faq.answer}</p>
-                    </div>
-                  </div>
-                )}
+                {isOpen && <div className="faq-answer-wrap"><div className="faq-answer"><p>{faq.answer}</p></div></div>}
               </article>
             );
           })}
