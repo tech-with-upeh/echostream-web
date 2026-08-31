@@ -21,6 +21,7 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   return (
     <main id="home" className="site-shell">
+      <style jsx>{`\n        .logo img { width: 28px; height: 28px; object-fit: contain; display: block; }\n        .logo { display: flex; align-items: center; gap: 10px; }\n        @media (min-width: 701px) { .mobile-menu { display: none !important; } }\n        @media (max-width: 700px) {\n          .navbar { position: relative; }\n          .mobile-menu { display: flex !important; position: relative; z-index: 12; }\n          .nav-right { display: block; position: absolute; top: 76px; left: 0; right: 0; padding: 8px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(11,15,17,.96); backdrop-filter: blur(16px); opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .2s ease, transform .2s ease, visibility .2s ease; }\n          .nav-right.is-open { opacity: 1; visibility: visible; transform: translateY(0); }\n          .nav-links { flex-direction: column; align-items: stretch; gap: 2px; }\n          .nav-links a { padding: 15px 14px; border-radius: 9px; font-size: 15px; }\n          .nav-links a:hover { background: rgba(255,255,255,.05); }\n        }\n      `}</style>
       <header className="site-header"><nav className="navbar">
         <a className="logo" href="#home"><img src="/logo.svg" alt="" aria-hidden="true" /><span>EchoStream</span></a>
         <div className={`nav-right${mobileNavOpen ? " is-open" : ""}`}>
