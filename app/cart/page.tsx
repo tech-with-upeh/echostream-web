@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import "./cart.css";
+import "../pricing/pricing.css";
 
 const PLANS = {
   essential: { name: "Essential", monthly: 1600, yearly: 16000 },
