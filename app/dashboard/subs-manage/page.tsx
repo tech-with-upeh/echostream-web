@@ -5,7 +5,7 @@ import { IonIcon } from "@ionic/react";
 import { arrowBackOutline, cardOutline } from "ionicons/icons";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import "../dashboard-ui.css";
-import "../../subs-manage/subs-manage.css";
+import "./subs-manage.css";
 
 export default function SubscriptionManagePage() {
   return (
