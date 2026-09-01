@@ -36,24 +36,16 @@ export default function CartPage() {
           <section className="cart-card">
             <div className="cart-card-heading">
               <div>
-                <span className="eyebrow">YOUR CART</span>
-                <h2>{plan.name} Plan</h2>
+                <span className="eyebrow">PLAN NAME</span>
+                <h2>{plan.name}</h2>
+                <p className="cart-plan-label">EchoStream Plan</p>
               </div>
-              <Image src="/logo.svg" alt="EchoStream" width={42} height={42} />
-            </div>
-
-            <div className="plan-switcher">
-              {(Object.keys(PLANS) as Array<keyof typeof PLANS>).map((key) => (
-                <button key={key} className={planKey === key ? "selected" : ""} onClick={() => setPlanKey(key)}>
-                  <span>{PLANS[key].name}</span>
-                  <strong>₦{PLANS[key].monthly.toLocaleString()}/mo</strong>
-                </button>
-              ))}
+              <Image src="/logo.svg" alt="EchoStream" width={48} height={48} />
             </div>
 
             <div className="duration-section">
               <div className="duration-title">
-                <span>Billing duration</span>
+                <span>Duration / Period</span>
                 <small>{duration === "12" ? `Save ₦${savings.toLocaleString()}` : ""}</small>
               </div>
               <div className="duration-options">
@@ -69,10 +61,11 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div className="cart-note">
-              <span>✓</span>
-              {duration === "12" ? `Equivalent to ₦${monthlyEquivalent.toLocaleString()} per month, billed annually.` : "Billed monthly. You can manage your subscription anytime."}
-            </div>
+            <p className="billing-copy">
+              {duration === "12"
+                ? `Billed every 12 months at ₦${price.toLocaleString()}. Equivalent to ₦${monthlyEquivalent.toLocaleString()} per month.`
+                : `Billed every month at ₦${price.toLocaleString()}.`}
+            </p>
           </section>
 
           <aside className="summary-card">
