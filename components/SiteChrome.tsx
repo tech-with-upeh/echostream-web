@@ -12,6 +12,10 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
     return <>{children}</>;
   }
 
+  if (pathname.startsWith("/dashboard")) {
+    return <>{children}</>;
+  }
+
   return (
     <>
       <Navbar />

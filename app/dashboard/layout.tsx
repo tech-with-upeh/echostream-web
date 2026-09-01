@@ -1,3 +1,4 @@
+import DashboardNavbar from "@/components/DashboardNavbar";
 import type { Metadata } from "next";
 
 
@@ -13,7 +14,8 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink md:flex-row">
-      <main className="min-w-0 flex-1">{children}</main>
+       
+      <main className="min-w-0 flex-1"><DashboardNavbar /> {children}</main>
     </div>
   );
 }

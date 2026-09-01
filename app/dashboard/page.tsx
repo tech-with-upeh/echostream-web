@@ -44,7 +44,7 @@ function SettingIcon({ icon }: { icon: string }) {
 export default function DashboardPage() {
   return (
     <main className="dashboard-page">
-      <DashboardNavbar />
+     
       <section className="dashboard-content" aria-label="Dashboard">
         <div className="dashboard-overview">
           <div className="dashboard-plan-card">

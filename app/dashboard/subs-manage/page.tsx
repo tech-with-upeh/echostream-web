@@ -5,12 +5,12 @@ import { IonIcon } from "@ionic/react";
 import { arrowBackOutline, cardOutline } from "ionicons/icons";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import "../dashboard-ui.css";
+import "../dashboard.css";
 import "./subs-manage.css";
 
 export default function SubscriptionManagePage() {
   return (
     <main className="subs-manage-page">
-      <DashboardNavbar />
 
       <section className="subs-manage-content">
         <Link href="/dashboard" className="subs-back-button">
