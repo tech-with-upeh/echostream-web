@@ -71,6 +71,23 @@ export default function CartPage() {
               </div>
             </div>
 
+            <div className="duration-deal-divider" />
+
+            {duration === "1" && (
+              <div className="duration-deal">
+                <p>
+                  Switch to a 24-month subscription for the <strong>biggest savings</strong>.
+                </p>
+                <button
+                  type="button"
+                  className="duration-deal-button"
+                  onClick={() => setDuration("12")}
+                >
+                  Get deal
+                </button>
+              </div>
+            )}
+
             <p className="billing-copy">
               {duration === "12"
                 ? `Billed every 12 months at ₦${price.toLocaleString()}. Equivalent to ₦${monthlyEquivalent.toLocaleString()} per month.`
