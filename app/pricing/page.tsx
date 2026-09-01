@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { IonIcon } from "@ionic/react";
 import { checkmark, arrowForward, waveform } from "ionicons/icons";
