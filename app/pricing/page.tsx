@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { IonIcon } from "@ionic/react";
-import { checkmark, arrowForward, waveform } from "ionicons/icons";
+import { checkmark, arrowForward } from "ionicons/icons";
 import "./pricing.css";
 
 type Plan = {
@@ -44,7 +45,7 @@ export default function PricingPage() {
     <main className="pricing-page">
       <section className="pricing-hero">
         <div className="pricing-brand">
-          <IonIcon icon={waveform} aria-hidden="true" />
+          <Image src="/logo.svg" alt="EchoStream" width={32} height={32} priority />
           <span>EchoStream AI</span>
         </div>
 
