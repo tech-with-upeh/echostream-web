@@ -1,0 +1,37 @@
+.payment-history-page { min-height: 100vh; }
+
+.payment-history-content { width: min(900px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 80px; }
+
+.payment-history-back { display: inline-flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; font-size: 13px; margin-bottom: 48px; opacity: .75; }
+.payment-history-back ion-icon { font-size: 17px; }
+
+.payment-history-header { text-align: center; margin-bottom: 34px; }
+.payment-history-header > span { font-size: 10px; letter-spacing: .14em; opacity: .55; }
+.payment-history-header h1 { margin: 8px 0 8px; font-size: clamp(30px, 5vw, 42px); font-weight: 500; letter-spacing: -.04em; }
+.payment-history-header p { margin: 0; opacity: .6; font-size: 13px; }
+
+.payment-history-card { background: rgba(255,255,255,.1); border-radius: 18px; padding: 24px; }
+.payment-history-card-heading { display: flex; align-items: center; gap: 13px; padding-bottom: 22px; }
+.payment-heading-icon { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.07); font-size: 19px; }
+.payment-history-card-heading h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; }
+.payment-history-card-heading p { margin: 0; font-size: 11px; opacity: .55; }
+
+.payment-list { border-top: 1px solid rgba(255,255,255,.08); }
+.payment-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 19px 4px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.payment-row:last-child { border-bottom: 0; padding-bottom: 4px; }
+.payment-row-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.payment-status-icon { flex: 0 0 auto; font-size: 19px; }
+.payment-row-main h3 { margin: 0 0 5px; font-size: 12px; font-weight: 600; }
+.payment-row-main p { margin: 0; font-size: 10px; opacity: .55; }
+.payment-row-amount { text-align: right; flex: 0 0 auto; }
+.payment-row-amount strong { display: block; font-size: 12px; font-weight: 600; }
+.payment-row-amount span { display: block; margin-top: 4px; font-size: 9px; opacity: .55; }
+
+@media (max-width: 600px) {
+  .payment-history-content { width: min(100% - 28px, 900px); padding-top: 24px; }
+  .payment-history-back { margin-bottom: 36px; }
+  .payment-history-card { padding: 18px; border-radius: 15px; }
+  .payment-row { align-items: flex-start; }
+  .payment-row-main { flex: 1; }
+  .payment-row-main h3 { line-height: 17px; }
+}
