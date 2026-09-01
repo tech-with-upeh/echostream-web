@@ -26,13 +26,10 @@ export default function CartPage() {
   return (
     <main className="cart-page">
       <div className="cart-shell">
-        <Link href="/" className="cart-brand">
-          <Image src="/logo.svg" alt="EchoStream" width={38} height={38} priority />
-          <span>EchoStream</span>
-        </Link>
+        
 
         <header className="cart-header">
-          <p>CHECKOUT</p>
+         
           <h1>Your cart</h1>
           <span>Review your plan and choose your billing duration.</span>
         </header>
@@ -41,7 +38,6 @@ export default function CartPage() {
           <section className="cart-card">
             <div className="cart-card-heading">
               <div>
-                <span className="eyebrow">PLAN NAME</span>
                 <h2>{plan.name}</h2>
                 <p className="cart-plan-label">EchoStream Plan</p>
               </div>
@@ -96,7 +92,6 @@ export default function CartPage() {
           </section>
 
           <aside className="summary-card">
-            <span className="eyebrow">ORDER SUMMARY</span>
             <h2>Order summary</h2>
             <div className="summary-row">
               <span>{plan.name} Plan</span>

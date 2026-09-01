@@ -1,3 +1,4 @@
+'use client'
 import DashboardNavbar from "@/components/DashboardNavbar";
 import { cardOutline, createOutline, diamondOutline, chevronForwardOutline, closeOutline, helpCircleOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
