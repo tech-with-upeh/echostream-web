@@ -1,0 +1,18 @@
+.cancel-sub-page{min-height:100vh;background:var(--background);color:var(--foreground)}
+.cancel-sub-content{width:min(900px,calc(100% - 48px));margin:0 auto;padding:34px 0 80px}
+.cancel-sub-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:600;margin-bottom:28px}
+.cancel-sub-back ion-icon{width:16px;height:16px}
+.cancel-sub-card{background:rgba(255,255,255,.1);border-radius:24px;padding:58px 60px;text-align:center}
+.cancel-sub-eyebrow{display:block;color:var(--accent);font-size:9px;font-weight:800;letter-spacing:1.6px;margin-bottom:16px}
+.cancel-sub-card h1{margin:0;font-size:38px;line-height:1.15;font-weight:550;letter-spacing:-1.4px}
+.cancel-sub-intro{max-width:590px;margin:17px auto 0;color:var(--muted);font-size:12px;line-height:1.8}
+.cancel-sub-changes{max-width:600px;margin:34px auto 0;text-align:left}
+.cancel-sub-change{display:flex;align-items:flex-start;gap:12px;padding:17px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.cancel-sub-change:first-child{border-top:1px solid rgba(255,255,255,.1)}
+.cancel-sub-change ion-icon{width:17px;height:17px;flex-shrink:0;color:var(--accent);margin-top:1px}
+.cancel-sub-change p{margin:0;color:var(--foreground);font-size:11px;line-height:1.6}
+.cancel-sub-actions{display:flex;justify-content:center;gap:12px;margin-top:38px}
+.cancel-sub-account-btn,.cancel-sub-confirm-btn{height:44px;padding:0 22px;border-radius:11px;font:inherit;font-size:11px;font-weight:750;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.cancel-sub-account-btn{background:rgba(255,255,255,.06);color:var(--foreground);text-decoration:none}
+.cancel-sub-confirm-btn{border:0;background:var(--accent);color:#071415}
+@media(max-width:700px){.cancel-sub-content{width:calc(100% - 36px);padding-top:24px}.cancel-sub-card{padding:38px 22px;border-radius:20px}.cancel-sub-card h1{font-size:29px}.cancel-sub-intro{font-size:11px}.cancel-sub-changes{margin-top:28px}.cancel-sub-actions{flex-direction:column}.cancel-sub-account-btn,.cancel-sub-confirm-btn{width:100%}}
