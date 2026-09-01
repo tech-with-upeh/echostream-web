@@ -5,12 +5,13 @@ import { IonIcon } from "@ionic/react";
 import { arrowBackOutline, checkmarkCircleOutline } from "ionicons/icons";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import "../dashboard-ui.css";
+import "../dashboard.css";
 import "./cancel-sub.css";
 
 export default function CancelSubscriptionPage() {
   return (
     <main className="cancel-sub-page">
-      <DashboardNavbar />
+      
 
       <section className="cancel-sub-content">
         <Link href="/dashboard/subs-manage" className="cancel-sub-back">
@@ -19,7 +20,6 @@ export default function CancelSubscriptionPage() {
         </Link>
 
         <div className="cancel-sub-card">
-          <span className="cancel-sub-eyebrow">CANCELLING YOUR PLAN</span>
           <h1>How your Stream will change</h1>
           <p className="cancel-sub-intro">
             If you cancel, you'll switch over to our free service on 04/09/2026. Here's how your listening will change:

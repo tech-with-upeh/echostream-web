@@ -18,18 +18,7 @@ const settingGroups = [
     title: "Payment",
     items: [
       { label: "Payment history", icon: cardOutline },
-      { label: "Saved cards", icon: cardOutline },
       { label: "Redeem", icon: diamondOutline },
-    ],
-  },
-  {
-    title: "Security and privacy",
-    items: [
-      { label: "Change password", icon: createOutline },
-      { label: "Notification settings", icon: createOutline },
-      { label: "Login methods", icon: createOutline },
-      { label: "Delete account", icon: closeOutline },
-      { label: "Sign out everywhere", icon: closeOutline },
     ],
   },
 ];
