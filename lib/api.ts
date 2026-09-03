@@ -45,6 +45,28 @@ export type SubscriptionCheckoutResponse = {
   interval: string;
 };
 
+export type PaymentHistoryItem = {
+  id: number;
+  reference: string;
+  plan: string;
+  interval: string | null;
+  amount: number | null;
+  currency: string;
+  status: string;
+  channel: string | null;
+  payment_method: string | null;
+  event: string;
+  paid_at: string | null;
+  created_at: string;
+};
+
+export type PaymentHistoryResponse = {
+  items: PaymentHistoryItem[];
+  total: number;
+  page: number;
+  per_page: number;
+};
+
 const SESSION_USER_KEY = "echostream_session_user";
 const SESSION_SUBSCRIPTION_KEY = "echostream_session_subscription";
 
@@ -161,6 +183,15 @@ export function getCurrentUser() {
 
 export function getSubscriptionManagement() {
   return authenticatedFetch<SubscriptionManagement>("/payments/manage");
+}
+
+export function getPaymentHistory(page = 1, perPage = 20) {
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
+
+  return authenticatedFetch<PaymentHistoryResponse>(`/payments/history?${params.toString()}`);
 }
 
 export function subscribeToPlan(plan: string, interval = "month") {
