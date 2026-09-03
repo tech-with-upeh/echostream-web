@@ -45,6 +45,9 @@ export type SubscriptionCheckoutResponse = {
   interval: string;
 };
 
+const SESSION_USER_KEY = "echostream_session_user";
+const SESSION_SUBSCRIPTION_KEY = "echostream_session_subscription";
+
 export class ApiError extends Error {
   status: number;
 
@@ -108,6 +111,48 @@ function authenticatedFetch<T>(path: string, options: RequestInit = {}) {
       ...options.headers,
     },
   });
+}
+
+function readSession<T>(key: string): T | null {
+  try {
+    const value = sessionStorage.getItem(key);
+    return value ? (JSON.parse(value) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeSession<T>(key: string, value: T) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Session storage is only an optimization; API data remains authoritative.
+  }
+}
+
+export function getSessionUser() {
+  return readSession<CurrentUser>(SESSION_USER_KEY);
+}
+
+export function getSessionSubscription() {
+  return readSession<SubscriptionManagement>(SESSION_SUBSCRIPTION_KEY);
+}
+
+export function cacheCurrentUser(user: CurrentUser) {
+  writeSession(SESSION_USER_KEY, user);
+}
+
+export function cacheSubscriptionManagement(subscription: SubscriptionManagement) {
+  writeSession(SESSION_SUBSCRIPTION_KEY, subscription);
+}
+
+export function clearSessionData() {
+  try {
+    sessionStorage.removeItem(SESSION_USER_KEY);
+    sessionStorage.removeItem(SESSION_SUBSCRIPTION_KEY);
+  } catch {
+    // Ignore storage errors.
+  }
 }
 
 export function getCurrentUser() {
