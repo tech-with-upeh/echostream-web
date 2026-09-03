@@ -1,7 +1,9 @@
 'use client'
 import DashboardNavbar from "@/components/DashboardNavbar";
+import { getSubscriptionManagement, SubscriptionManagement } from "@/lib/api";
 import { cardOutline, createOutline, diamondOutline, chevronForwardOutline, closeOutline, helpCircleOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
+import { useEffect, useState } from "react";
 import "./dashboard.css";
 import "./dashboard-ui.css";
 
@@ -30,21 +32,92 @@ function SettingIcon({ icon }: { icon: string }) {
   return <IonIcon icon={icon} aria-hidden="true" />;
 }
 
+function formatPlan(plan: string) {
+  if (!plan) return "Starter";
+  return plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
+}
+
+function formatDate(date: string | null) {
+  if (!date) return null;
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(parsed);
+}
+
+function formatPaymentType(subscription: SubscriptionManagement) {
+  if (subscription.type === "one_time") return "One time";
+  if (subscription.payment_channel) {
+    return subscription.payment_channel
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+  return "Recurring";
+}
+
+function SubscriptionCard() {
+  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    getSubscriptionManagement()
+      .then((data) => {
+        if (mounted) setSubscription(data);
+      })
+      .catch((error) => {
+        console.error("Failed to load subscription details:", error);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const plan = subscription ? formatPlan(subscription.plan) : "";
+  const endDate = subscription ? formatDate(subscription.subscription_ends_at) : null;
+
+  return (
+    <div className="dashboard-plan-card">
+      <span className="dashboard-plan-badge">Your plan</span>
+      <div className="dashboard-plan-heading">
+        <img src="/logo.svg" alt="" aria-hidden="true" />
+        <h1>{loading ? "Loading..." : plan || "Starter"}</h1>
+      </div>
+
+      {subscription?.type === "one_time" ? (
+        <p className="dashboard-billing-copy">
+          Your plan is active until <strong>{endDate ?? "—"}</strong>.
+        </p>
+      ) : (
+        <p className="dashboard-billing-copy">
+          Your next bill is due <strong>{endDate ?? "—"}</strong>.
+          {subscription?.interval ? ` Billed ${subscription.interval}.` : ""}
+        </p>
+      )}
+
+      {subscription && (
+        <p className="dashboard-card-details">
+          {formatPaymentType(subscription)}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   return (
     <main className="dashboard-page">
-     
       <section className="dashboard-content" aria-label="Dashboard">
         <div className="dashboard-overview">
-          <div className="dashboard-plan-card">
-            <span className="dashboard-plan-badge">Your plan</span>
-            <div className="dashboard-plan-heading">
-              <img src="/logo.svg" alt="" aria-hidden="true" />
-              <h1>Essential</h1>
-            </div>
-            <p className="dashboard-billing-copy">Your next bill is for <strong>₦1,600.00</strong> on <strong>04/09/2026.</strong></p>
-            <p className="dashboard-card-details">Mastercard *** 3456 <span>|</span> 07/28</p>
-          </div>
+          <SubscriptionCard />
           <div className="dashboard-actions">
             <button type="button" className="dashboard-action-card"><IonIcon icon={createOutline} aria-hidden="true" /><span>Edit Personal Info</span></button>
             <button type="button" className="dashboard-action-card"><IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span></button>
