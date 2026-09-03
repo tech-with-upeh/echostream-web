@@ -65,3 +65,12 @@ export function login(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
 }
+
+export function logout(accessToken: string) {
+  return apiFetch<unknown>("/logout", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
