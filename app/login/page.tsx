@@ -136,7 +136,7 @@ export default function LoginPage() {
             </div>
 
             <div className="relative flex items-center gap-3 text-xs text-[#a7b0b2]">
-              <ShieldCheck className="h-4 w-4 text-[#6ee7e5]" />
+              <IonIcon icon={shieldCheck} className="h-4 w-4 text-[#6ee7e5]" aria-hidden="true" />
               <span>Email verification helps keep your account secure.</span>
             </div>
           </section>
