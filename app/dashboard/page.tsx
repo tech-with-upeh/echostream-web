@@ -12,11 +12,11 @@ const settingGroups = [
   { title: "Subscription", items: [
     { label: "Available subscription", icon: diamondOutline, href: "/pricing" },
     { label: "Manage Subscription", icon: "/logo.svg", href: "/dashboard/subs-manage" },
-    { label: "Cancel Subscription", icon: closeOutline, href: "/cancel-sub" },
+    { label: "Cancel Subscription", icon: closeOutline, href: "/dashboard/cancel-sub" },
   ]},
   { title: "Payment", items: [
-    { label: "Payment history", icon: cardOutline },
-    { label: "Redeem", icon: diamondOutline },
+    { label: "Payment history", icon: cardOutline , href: "/dashboard/payment-history"},
+    { label: "Redeem", icon: diamondOutline, href: "/dashboard/redeem" },
   ]},
 ];
 
