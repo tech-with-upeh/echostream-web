@@ -3,6 +3,7 @@ import DashboardNavbar from "@/components/DashboardNavbar";
 import { getSubscriptionManagement, SubscriptionManagement } from "@/lib/api";
 import { cardOutline, createOutline, diamondOutline, chevronForwardOutline, closeOutline, helpCircleOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "./dashboard.css";
 import "./dashboard-ui.css";
@@ -11,8 +12,8 @@ const settingGroups = [
   {
     title: "Subscription",
     items: [
-      { label: "Available subscription", icon: diamondOutline },
-      { label: "Manage Subscription", icon: "/logo.svg" },
+      { label: "Available subscription", icon: diamondOutline, href: "/pricing" },
+      { label: "Manage Subscription", icon: "/logo.svg", href: "/dashboard/subs-manage" },
       { label: "Cancel Subscription", icon: closeOutline },
     ],
   },
@@ -113,6 +114,31 @@ function SubscriptionCard() {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    getSubscriptionManagement()
+      .then((data) => {
+        if (mounted) setSubscription(data);
+      })
+      .catch((error) => {
+        console.error("Failed to load subscription details:", error);
+      })
+      .finally(() => {
+        if (mounted) setSubscriptionLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const isOneTime = subscription?.type === "one_time";
+
   return (
     <main className="dashboard-page">
       <section className="dashboard-content" aria-label="Dashboard">
@@ -120,7 +146,14 @@ export default function DashboardPage() {
           <SubscriptionCard />
           <div className="dashboard-actions">
             <button type="button" className="dashboard-action-card"><IonIcon icon={createOutline} aria-hidden="true" /><span>Edit Personal Info</span></button>
-            <button type="button" className="dashboard-action-card"><IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span></button>
+            <button
+              type="button"
+              className="dashboard-action-card"
+              disabled={subscriptionLoading || isOneTime}
+              aria-disabled={subscriptionLoading || isOneTime}
+            >
+              <IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span>
+            </button>
           </div>
         </div>
 
@@ -129,7 +162,12 @@ export default function DashboardPage() {
             <h2 className="dashboard-section-title">{group.title}</h2>
             <div className="dashboard-setting-list">
               {group.items.map((item) => (
-                <button type="button" className="dashboard-setting-row" key={item.label}>
+                <button
+                  type="button"
+                  className="dashboard-setting-row"
+                  key={item.label}
+                  onClick={() => item.href && router.push(item.href)}
+                >
                   <span className="dashboard-setting-label"><SettingIcon icon={item.icon} /><span>{item.label}</span></span>
                   <IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" />
                 </button>
