@@ -5,7 +5,25 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IonIcon } from "@ionic/react";
 import { checkmarkCircle, logoApple, logoGoogle, warning } from "ionicons/icons";
-import { ApiError, login } from "@/lib/api";
+import { ApiError, googleLogin, login } from "@/lib/api";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (options: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+            auto_select?: boolean;
+            cancel_on_tap_outside?: boolean;
+        }) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value.trim());
@@ -19,6 +37,9 @@ export default function LoginPage() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [googleReady, setGoogleReady] = useState(false);
+
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     const accessToken = localStorage.getItem("echostream_access_token");
@@ -30,6 +51,90 @@ export default function LoginPage() {
 
     setCheckingAuth(false);
   }, [router]);
+
+  useEffect(() => {
+    if (!googleClientId) {
+      console.warn("NEXT_PUBLIC_GOOGLE_CLIENT_ID is not configured.");
+      return;
+    }
+
+    let script = document.querySelector<HTMLScriptElement>(
+      'script[src="https://accounts.google.com/gsi/client"]',
+    );
+
+    const initializeGoogle = () => {
+      if (!window.google) return;
+
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+
+      setGoogleReady(true);
+    };
+
+    if (window.google) {
+      initializeGoogle();
+      return;
+    }
+
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    script.addEventListener("load", initializeGoogle);
+    return () => script?.removeEventListener("load", initializeGoogle);
+  }, [googleClientId]);
+
+  async function handleGoogleCredential(response: { credential: string }) {
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      const tokens = await googleLogin(response.credential);
+
+      localStorage.setItem("echostream_access_token", tokens.access_token);
+      localStorage.setItem("echostream_refresh_token", tokens.refresh_token);
+      localStorage.setItem("echostream_token_type", tokens.token_type);
+
+      setSuccess("Login successful.");
+      router.push("/dashboard");
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleGoogleLogin() {
+    setError("");
+    setSuccess("");
+
+    if (!googleClientId) {
+      setError("Google sign-in is not configured yet.");
+      return;
+    }
+
+    if (!googleReady || !window.google) {
+      setError("Google sign-in is still loading. Please try again in a moment.");
+      return;
+    }
+
+    window.google.accounts.id.prompt();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -132,8 +237,12 @@ export default function LoginPage() {
         <div className="login-divider" aria-hidden="true"><span>or</span></div>
 
         <div className="login-socials">
-          <button type="button" className="login-social"><IonIcon icon={logoGoogle} aria-hidden="true" /><span>Continue with Google</span></button>
-          <button type="button" className="login-social"><IonIcon icon={logoApple} aria-hidden="true" /><span>Continue with Apple</span></button>
+          <button type="button" className="login-social" onClick={handleGoogleLogin} disabled={loading}>
+            <IonIcon icon={logoGoogle} aria-hidden="true" /><span>Continue with Google</span>
+          </button>
+          <button type="button" className="login-social" disabled={loading}>
+            <IonIcon icon={logoApple} aria-hidden="true" /><span>Continue with Apple</span>
+          </button>
         </div>
 
         <p className="login-signup">Don&apos;t have an account? <Link href="/getmobile">Sign up</Link></p>
