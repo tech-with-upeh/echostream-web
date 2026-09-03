@@ -10,13 +10,13 @@ import "./dashboard-ui.css";
 
 const settingGroups = [
   { title: "Subscription", items: [
-    { label: "Available subscription", icon: diamondOutline, href: "/pricing" },
-    { label: "Manage Subscription", icon: "/logo.svg", href: "/dashboard/subs-manage" },
-    { label: "Cancel Subscription", icon: closeOutline, href: "/dashboard/cancel-sub" },
+    { label: "Available subscription", icon: diamondOutline, href: "/pricing", paymentRelated: false },
+    { label: "Manage Subscription", icon: "/logo.svg", href: "/dashboard/subs-manage", paymentRelated: true },
+    { label: "Cancel Subscription", icon: closeOutline, href: "/dashboard/cancel-sub", paymentRelated: true },
   ]},
   { title: "Payment", items: [
-    { label: "Payment history", icon: cardOutline , href: "/dashboard/payment-history"},
-    { label: "Redeem", icon: diamondOutline, href: "/dashboard/redeem" },
+    { label: "Payment history", icon: cardOutline, href: "/dashboard/payment-history", paymentRelated: true },
+    { label: "Redeem", icon: diamondOutline, href: "/dashboard/redeem", paymentRelated: true },
   ]},
 ];
 
@@ -72,6 +72,8 @@ export default function DashboardPage() {
   const plan = subscription ? formatPlan(subscription.plan) : "";
   const endDate = subscription ? formatDate(subscription.subscription_ends_at) : null;
   const isOneTime = subscription?.type === "one_time";
+  const isStarter = plan.toLowerCase() === "starter";
+  const disablePaymentActions = subscriptionLoading || isOneTime || isStarter;
 
   return (
     <main className="dashboard-page">
@@ -85,10 +87,13 @@ export default function DashboardPage() {
           </div>
           <div className="dashboard-actions">
             <button type="button" className="dashboard-action-card"><IonIcon icon={createOutline} aria-hidden="true" /><span>Edit Personal Info</span></button>
-            <button type="button" className="dashboard-action-card" disabled={subscriptionLoading || isOneTime} aria-disabled={subscriptionLoading || isOneTime}><IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span></button>
+            <button type="button" className="dashboard-action-card" disabled={disablePaymentActions} aria-disabled={disablePaymentActions}><IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span></button>
           </div>
         </div>
-        {settingGroups.map((group) => <section className="dashboard-section-card" key={group.title}><h2 className="dashboard-section-title">{group.title}</h2><div className="dashboard-setting-list">{group.items.map((item) => <button type="button" className="dashboard-setting-row" key={item.label} onClick={() => item.href && router.push(item.href)}><span className="dashboard-setting-label"><SettingIcon icon={item.icon} /><span>{item.label}</span></span><IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" /></button>)}</div></section>)}
+        {settingGroups.map((group) => <section className="dashboard-section-card" key={group.title}><h2 className="dashboard-section-title">{group.title}</h2><div className="dashboard-setting-list">{group.items.map((item) => {
+          const disabled = item.paymentRelated && (subscriptionLoading || isStarter);
+          return <button type="button" className={`dashboard-setting-row${disabled ? " dashboard-setting-row-disabled" : ""}`} key={item.label} disabled={disabled} aria-disabled={disabled} onClick={() => !disabled && item.href && router.push(item.href)}><span className="dashboard-setting-label"><SettingIcon icon={item.icon} /><span>{item.label}</span></span><IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" /></button>;
+        })}</div></section>)}
         <section className="dashboard-section-card dashboard-help-card"><h2 className="dashboard-section-title">Help</h2><button type="button" className="dashboard-setting-row dashboard-help-row"><span className="dashboard-setting-label"><IonIcon icon={helpCircleOutline} aria-hidden="true" /><span>Echostream Support</span></span><IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" /></button></section>
       </section>
     </main>
