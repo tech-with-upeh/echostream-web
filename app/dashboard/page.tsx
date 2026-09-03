@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import DashboardNavbar from "@/components/DashboardNavbar";
-import { cacheSubscriptionManagement, getSessionSubscription, getSubscriptionManagement, SubscriptionManagement } from "@/lib/api";
+import { cacheCurrentUser, cacheSubscriptionManagement, getCurrentUser, getSessionSubscription, getSubscriptionManagement, CurrentUser, SubscriptionManagement } from "@/lib/api";
 import { cardOutline, createOutline, diamondOutline, chevronForwardOutline, closeOutline, helpCircleOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
 import { useRouter } from "next/navigation";
@@ -9,40 +9,28 @@ import "./dashboard.css";
 import "./dashboard-ui.css";
 
 const settingGroups = [
-  {
-    title: "Subscription",
-    items: [
-      { label: "Available subscription", icon: diamondOutline, href: "/pricing" },
-      { label: "Manage Subscription", icon: "/logo.svg", href: "/dashboard/subs-manage" },
-      { label: "Cancel Subscription", icon: closeOutline, href: "/cancel-sub" },
-    ],
-  },
-  {
-    title: "Payment",
-    items: [
-      { label: "Payment history", icon: cardOutline },
-      { label: "Redeem", icon: diamondOutline },
-    ],
-  },
+  { title: "Subscription", items: [
+    { label: "Available subscription", icon: diamondOutline, href: "/pricing" },
+    { label: "Manage Subscription", icon: "/logo.svg", href: "/dashboard/subs-manage" },
+    { label: "Cancel Subscription", icon: closeOutline, href: "/cancel-sub" },
+  ]},
+  { title: "Payment", items: [
+    { label: "Payment history", icon: cardOutline },
+    { label: "Redeem", icon: diamondOutline },
+  ]},
 ];
 
 function SettingIcon({ icon }: { icon: string }) {
   if (icon === "/logo.svg") return <img className="dashboard-setting-logo" src={icon} alt="" aria-hidden="true" />;
   return <IonIcon icon={icon} aria-hidden="true" />;
 }
-
-function formatPlan(plan: string) {
-  if (!plan) return "Starter";
-  return plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
-}
-
+function formatPlan(plan: string) { return !plan ? "Starter" : plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase(); }
 function formatDate(date: string | null) {
   if (!date) return null;
   const parsed = new Date(date);
   if (Number.isNaN(parsed.getTime())) return null;
   return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).format(parsed);
 }
-
 function formatPaymentType(subscription: SubscriptionManagement) {
   if (subscription.type === "one_time") return "One time";
   if (subscription.payment_channel) return subscription.payment_channel.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
@@ -51,18 +39,33 @@ function formatPaymentType(subscription: SubscriptionManagement) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(() => getSessionSubscription());
-  const [subscriptionLoading, setSubscriptionLoading] = useState(() => !getSessionSubscription());
+  const cachedSubscription = getSessionSubscription();
+  const [user, setUser] = useState<CurrentUser | null>(() => getCurrentUserSession());
+  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(() => cachedSubscription);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(() => !cachedSubscription);
 
   useEffect(() => {
     let mounted = true;
-    getSubscriptionManagement()
-      .then((data) => {
-        cacheSubscriptionManagement(data);
-        if (mounted) setSubscription(data);
-      })
-      .catch((error) => console.error("Failed to load subscription details:", error))
-      .finally(() => { if (mounted) setSubscriptionLoading(false); });
+    const accessToken = localStorage.getItem("echostream_access_token");
+    if (!accessToken) {
+      if (mounted) setSubscriptionLoading(false);
+      return;
+    }
+
+    Promise.allSettled([getCurrentUser(), getSubscriptionManagement()]).then((results) => {
+      if (!mounted) return;
+      const userResult = results[0];
+      const subscriptionResult = results[1];
+      if (userResult.status === "fulfilled") {
+        cacheCurrentUser(userResult.value);
+        setUser(userResult.value);
+      }
+      if (subscriptionResult.status === "fulfilled") {
+        cacheSubscriptionManagement(subscriptionResult.value);
+        setSubscription(subscriptionResult.value);
+      }
+      setSubscriptionLoading(false);
+    });
     return () => { mounted = false; };
   }, []);
 
@@ -76,48 +79,25 @@ export default function DashboardPage() {
         <div className="dashboard-overview">
           <div className="dashboard-plan-card">
             <span className="dashboard-plan-badge">Your plan</span>
-            <div className="dashboard-plan-heading">
-              <img src="/logo.svg" alt="" aria-hidden="true" />
-              {subscription ? <h1>{plan || "Starter"}</h1> : <span className="dashboard-plan-spinner" role="status" aria-label="Loading subscription" />}
-            </div>
-            {subscription?.type === "one_time" ? (
-              <p className="dashboard-billing-copy">Your plan is active until <strong>{endDate ?? "—"}</strong>.</p>
-            ) : (
-              <p className="dashboard-billing-copy">Your next bill is due <strong>{endDate ?? "—"}</strong>.{subscription?.interval ? ` Billed ${subscription.interval}.` : ""}</p>
-            )}
+            <div className="dashboard-plan-heading"><img src="/logo.svg" alt="" aria-hidden="true" />{subscription ? <h1>{plan || "Starter"}</h1> : <span className="dashboard-plan-spinner" role="status" aria-label="Loading subscription" />}</div>
+            {subscription?.type === "one_time" ? <p className="dashboard-billing-copy">Your plan is active until <strong>{endDate ?? "—"}</strong>.</p> : <p className="dashboard-billing-copy">Your next bill is due <strong>{endDate ?? "—"}</strong>.{subscription?.interval ? ` Billed ${subscription.interval}.` : ""}</p>}
             {subscription && <p className="dashboard-card-details">{formatPaymentType(subscription)}</p>}
           </div>
-
           <div className="dashboard-actions">
             <button type="button" className="dashboard-action-card"><IonIcon icon={createOutline} aria-hidden="true" /><span>Edit Personal Info</span></button>
-            <button type="button" className="dashboard-action-card" disabled={subscriptionLoading || isOneTime} aria-disabled={subscriptionLoading || isOneTime}>
-              <IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span>
-            </button>
+            <button type="button" className="dashboard-action-card" disabled={subscriptionLoading || isOneTime} aria-disabled={subscriptionLoading || isOneTime}><IonIcon icon={cardOutline} aria-hidden="true" /><span>Update card</span></button>
           </div>
         </div>
-
-        {settingGroups.map((group) => (
-          <section className="dashboard-section-card" key={group.title}>
-            <h2 className="dashboard-section-title">{group.title}</h2>
-            <div className="dashboard-setting-list">
-              {group.items.map((item) => (
-                <button type="button" className="dashboard-setting-row" key={item.label} onClick={() => item.href && router.push(item.href)}>
-                  <span className="dashboard-setting-label"><SettingIcon icon={item.icon} /><span>{item.label}</span></span>
-                  <IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" />
-                </button>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        <section className="dashboard-section-card dashboard-help-card">
-          <h2 className="dashboard-section-title">Help</h2>
-          <button type="button" className="dashboard-setting-row dashboard-help-row">
-            <span className="dashboard-setting-label"><IonIcon icon={helpCircleOutline} aria-hidden="true" /><span>Echostream Support</span></span>
-            <IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" />
-          </button>
-        </section>
+        {settingGroups.map((group) => <section className="dashboard-section-card" key={group.title}><h2 className="dashboard-section-title">{group.title}</h2><div className="dashboard-setting-list">{group.items.map((item) => <button type="button" className="dashboard-setting-row" key={item.label} onClick={() => item.href && router.push(item.href)}><span className="dashboard-setting-label"><SettingIcon icon={item.icon} /><span>{item.label}</span></span><IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" /></button>)}</div></section>)}
+        <section className="dashboard-section-card dashboard-help-card"><h2 className="dashboard-section-title">Help</h2><button type="button" className="dashboard-setting-row dashboard-help-row"><span className="dashboard-setting-label"><IonIcon icon={helpCircleOutline} aria-hidden="true" /><span>Echostream Support</span></span><IonIcon className="dashboard-setting-caret" icon={chevronForwardOutline} aria-hidden="true" /></button></section>
       </section>
     </main>
   );
+}
+
+function getCurrentUserSession() {
+  try {
+    const value = sessionStorage.getItem("echostream_session_user");
+    return value ? JSON.parse(value) as CurrentUser : null;
+  } catch { return null; }
 }
