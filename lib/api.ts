@@ -10,6 +10,33 @@ export type LoginResponse = {
   token_type: string;
 };
 
+export type CurrentUser = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_verified: boolean;
+  plan: string;
+  subscription_status: string;
+  trial_ends_at: string | null;
+  subscription_ends_at: string | null;
+};
+
+export type SubscriptionManagement = {
+  type: "one_time" | "recurring";
+  plan: string;
+  interval: string;
+  payment_method: string;
+  payment_channel: string | null;
+  subscription_ends_at: string | null;
+  can_cancel: boolean;
+  can_renew: boolean;
+  management_link: string | null;
+  subscription_status?: string;
+  link?: string | null;
+  subscription_code?: string;
+};
+
 export class ApiError extends Error {
   status: number;
 
@@ -57,6 +84,28 @@ export async function apiFetch<T>(
   }
 
   return data as T;
+}
+
+function authenticatedFetch<T>(path: string) {
+  const accessToken = localStorage.getItem("echostream_access_token");
+
+  if (!accessToken) {
+    throw new ApiError("Authentication required.", 401);
+  }
+
+  return apiFetch<T>(path, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}
+
+export function getCurrentUser() {
+  return authenticatedFetch<CurrentUser>("/users/me");
+}
+
+export function getSubscriptionManagement() {
+  return authenticatedFetch<SubscriptionManagement>("/payments/manage");
 }
 
 export function login(email: string, password: string) {
