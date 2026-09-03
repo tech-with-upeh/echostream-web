@@ -5,7 +5,7 @@ import Image from "next/image";
 import { IonIcon } from "@ionic/react";
 import { checkmark, arrowForward } from "ionicons/icons";
 import { useEffect, useState } from "react";
-import { getCurrentUser, subscribeToPlan, CurrentUser } from "@/lib/api";
+import { getCurrentUser, CurrentUser } from "@/lib/api";
 import "./pricing.css";
 
 type Plan = {
@@ -58,18 +58,16 @@ function getCta(planName: string, user: CurrentUser | null) {
 
   if (targetPlan === currentPlan) {
     if (targetPlan === "starter") return { label: "Current plan", href: "/dashboard" };
-    return { label: "Cancel", href: "/dashboard/subs-manage" };
+    return { label: "Cancel", href: "/cancel-sub" };
   }
 
-  if (targetRank > currentRank) return { label: "Upgrade", href: null };
-  return { label: "Downgrade", href: null };
+  if (targetRank > currentRank) return { label: "Upgrade", href: "/dashboard/subs-manage" };
+  return { label: "Downgrade", href: "/dashboard/subs-manage" };
 }
 
 export default function PricingPage() {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [sessionChecked, setSessionChecked] = useState(false);
-  const [actionPlan, setActionPlan] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("echostream_access_token");
@@ -89,25 +87,6 @@ export default function PricingPage() {
       .finally(() => setSessionChecked(true));
   }, []);
 
-  async function handlePlanAction(planName: string) {
-    const cta = getCta(planName, user);
-    if (cta.href) return;
-
-    setActionPlan(planName);
-    setError(null);
-
-    try {
-      const result = await subscribeToPlan(planName.toLowerCase(), "month");
-      if (!result.authorization_url) {
-        throw new Error("Payment authorization URL was not returned.");
-      }
-      window.location.href = result.authorization_url;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to start subscription.");
-      setActionPlan(null);
-    }
-  }
-
   return (
     <main className="pricing-page">
       <section className="pricing-hero">
@@ -122,12 +101,9 @@ export default function PricingPage() {
           <p>Unlock the full potential of your AI workflow with tools designed for cinematic fidelity.</p>
         </div>
 
-        {error && <p className="pricing-action-error" role="alert">{error}</p>}
-
         <div className="pricing-plans">
           {PLANS.map((plan) => {
             const cta = getCta(plan.name, user);
-            const loading = actionPlan === plan.name;
 
             return (
               <article className={`pricing-card-wrap${plan.popular ? " pricing-card-popular" : ""}`} key={plan.name}>
@@ -146,22 +122,19 @@ export default function PricingPage() {
                     ))}
                   </ul>
                   <div className="pricing-button-wrap">
-                    {cta.href ? (
-                      <Link href={cta.href} className={`pricing-button${plan.popular ? " pricing-button-primary" : ""}`}>
-                        <span>{sessionChecked ? cta.label : "..."}</span>
-                        <IonIcon icon={arrowForward} aria-hidden="true" />
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        className={`pricing-button${plan.popular ? " pricing-button-primary" : ""}`}
-                        onClick={() => handlePlanAction(plan.name)}
-                        disabled={!sessionChecked || loading}
-                      >
-                        <span>{loading ? "Redirecting..." : sessionChecked ? cta.label : "..."}</span>
-                        <IonIcon icon={arrowForward} aria-hidden="true" />
-                      </button>
-                    )}
+                    <Link
+                      href={cta.href}
+                      className={`pricing-button${plan.popular ? " pricing-button-primary" : ""}`}
+                      aria-disabled={!sessionChecked}
+                      tabIndex={!sessionChecked ? -1 : undefined}
+                    >
+                      {!sessionChecked ? (
+                        <span className="pricing-spinner" role="status" aria-label="Loading session" />
+                      ) : (
+                        <span>{cta.label}</span>
+                      )}
+                      <IonIcon icon={arrowForward} aria-hidden="true" />
+                    </Link>
                   </div>
                 </div>
               </article>
