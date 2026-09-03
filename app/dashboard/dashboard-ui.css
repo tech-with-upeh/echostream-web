@@ -64,6 +64,13 @@
 .dashboard-help-row .dashboard-setting-label ion-icon {
   color: var(--highlight);
 }
+.dashboard-action-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.dashboard-action-card:disabled:hover {
+  background: transparent;
+}
 @media (max-width: 768px) {
   .dashboard-section-card {
     padding: 22px 18px;
