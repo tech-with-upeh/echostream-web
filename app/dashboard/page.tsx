@@ -16,7 +16,7 @@ const settingGroups = [
   ]},
   { title: "Payment", items: [
     { label: "Payment history", icon: cardOutline, href: "/dashboard/payment-history", paymentRelated: true },
-    { label: "Redeem", icon: diamondOutline, href: "/dashboard/redeem", paymentRelated: true },
+    { label: "Redeem", icon: diamondOutline, href: "/dashboard/redeem", paymentRelated: false },
   ]},
 ];
 
