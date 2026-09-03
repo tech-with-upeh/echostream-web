@@ -3,15 +3,53 @@
 import Link from "next/link";
 import { IonIcon } from "@ionic/react";
 import { arrowBackOutline, cardOutline } from "ionicons/icons";
+import { useEffect, useState } from "react";
 import DashboardNavbar from "@/components/DashboardNavbar";
+import { getSubscriptionManagement, SubscriptionManagement } from "@/lib/api";
 import "../dashboard-ui.css";
 import "../dashboard.css";
 import "./subs-manage.css";
 
+function formatDate(value: string | null) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function formatPlan(value: string) {
+  if (!value) return "—";
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function formatInterval(value: string) {
+  const normalized = value.toLowerCase();
+  if (normalized === "month" || normalized === "monthly") return "monthly";
+  if (normalized === "year" || normalized === "yearly" || normalized === "annual") return "yearly";
+  return value;
+}
+
 export default function SubscriptionManagePage() {
+  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getSubscriptionManagement()
+      .then(setSubscription)
+      .catch(() => setSubscription(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const plan = subscription ? formatPlan(subscription.plan) : "—";
+  const isOneTime = subscription?.type === "one_time";
+  const canCancel = subscription?.can_cancel ?? false;
+  const endDate = formatDate(subscription?.subscription_ends_at ?? null);
+  const interval = subscription ? formatInterval(subscription.interval) : "—";
+
   return (
     <main className="subs-manage-page">
-
       <section className="subs-manage-content">
         <Link href="/dashboard" className="subs-back-button">
           <IonIcon icon={arrowBackOutline} aria-hidden="true" />
@@ -24,7 +62,7 @@ export default function SubscriptionManagePage() {
             <div className="subs-plan-brand">
               <img src="/logo.svg" alt="" aria-hidden="true" />
               <div>
-                <h1>Essential</h1>
+                <h1>{loading ? <span className="subs-spinner" role="status" aria-label="Loading subscription" /> : plan}</h1>
                 <p>EchoStream Plan</p>
               </div>
             </div>
@@ -32,11 +70,12 @@ export default function SubscriptionManagePage() {
               Your current plan gives you everything you need for your streams, including premium voices and enhanced features.
             </p>
           </div>
+
           <div className="subs-plan-bottom">
             <div>
-              <span>Next bill</span>
-              <strong>₦1,600.00</strong>
-              <small>04/09/2026</small>
+              <span>{isOneTime ? "Access until" : "Next bill"}</span>
+              <strong>{loading ? "" : isOneTime ? "One time" : interval}</strong>
+              <small>{loading ? "" : endDate}</small>
             </div>
             <Link href="/pricing" className="subs-change-plan">Change plan</Link>
           </div>
@@ -44,17 +83,38 @@ export default function SubscriptionManagePage() {
 
         <section className="subs-cancel-section">
           <div>
-            <h2>Cancel subscription</h2>
-            <p>Cancel your Essential plan. You’ll continue to have access until the end of your current billing period.</p>
+            <h2>{isOneTime ? "Subscription management" : "Cancel subscription"}</h2>
+            <p>
+              {isOneTime
+                ? `Your ${plan} plan is a one-time payment and remains active until ${endDate}.`
+                : `Cancel your ${plan} plan. You’ll continue to have access until the end of your current billing period.`}
+            </p>
           </div>
-          <button type="button" className="subs-cancel-button">Cancel subscription</button>
+          {!loading && !isOneTime && (
+            <Link
+              href={canCancel ? "/cancel-sub" : "/dashboard/subs-manage"}
+              className={`subs-cancel-button${!canCancel ? " subs-cancel-disabled" : ""}`}
+              aria-disabled={!canCancel}
+              onClick={(event) => {
+                if (!canCancel) event.preventDefault();
+              }}
+            >
+              Cancel subscription
+            </Link>
+          )}
         </section>
 
         <section className="subs-payment-card">
           <div className="subs-payment-heading">
             <span className="subs-eyebrow">PAYMENTS</span>
             <h2>Payment</h2>
-            <p>Your next bill is for <strong>₦1,600.00</strong> on <strong>04/09/2026.</strong></p>
+            <p>
+              {loading
+                ? ""
+                : isOneTime
+                  ? `One-time payment. Your plan is active until ${endDate}.`
+                  : `Your next bill is due ${endDate}. Billed ${interval}.`}
+            </p>
           </div>
 
           <hr />
@@ -64,10 +124,17 @@ export default function SubscriptionManagePage() {
               <IonIcon icon={cardOutline} />
             </div>
             <div className="subs-card-info">
-              <span>Mastercard</span>
-              <strong>****563 <b>|</b> Exp: 12/23</strong>
+              <span>{loading ? "Loading payment details" : isOneTime ? "One time" : "Recurring payment"}</span>
+              <strong>{loading ? "" : isOneTime ? "No recurring payment method" : `${formatInterval(subscription?.interval ?? "")} billing`}</strong>
             </div>
-            <button type="button" className="subs-update-card">Update</button>
+            <button
+              type="button"
+              className="subs-update-card"
+              disabled={loading || isOneTime}
+              aria-disabled={loading || isOneTime}
+            >
+              Update
+            </button>
           </div>
         </section>
       </section>
