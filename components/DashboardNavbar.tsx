@@ -2,12 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { chevronDownOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
+import { ApiError, logout } from "@/lib/api";
 
 export default function DashboardNavbar() {
+  const router = useRouter();
   const [plansOpen, setPlansOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const plansRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -21,6 +25,32 @@ export default function DashboardNavbar() {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  async function handleLogout() {
+    if (loggingOut) return;
+
+    const accessToken = localStorage.getItem("echostream_access_token");
+
+    setLoggingOut(true);
+    setProfileOpen(false);
+
+    try {
+      if (accessToken) {
+        await logout(accessToken);
+      }
+    } catch (error) {
+      if (error instanceof ApiError) {
+        console.error("Logout API error:", error.message);
+      } else {
+        console.error("Logout failed:", error);
+      }
+    } finally {
+      localStorage.removeItem("echostream_access_token");
+      localStorage.removeItem("echostream_refresh_token");
+      localStorage.removeItem("echostream_token_type");
+      router.replace("/login");
+    }
+  }
 
   return (
     <header className="dashboard-header">
@@ -89,7 +119,9 @@ export default function DashboardNavbar() {
             {profileOpen && (
               <div className="dashboard-menu dashboard-profile-menu">
                 <Link href="/account" onClick={() => setProfileOpen(false)}>Account</Link>
-                <button type="button" onClick={() => setProfileOpen(false)}>Log out</button>
+                <button type="button" onClick={handleLogout} disabled={loggingOut}>
+                  {loggingOut ? "Logging out..." : "Log out"}
+                </button>
               </div>
             )}
           </div>
