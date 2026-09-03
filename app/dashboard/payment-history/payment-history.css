@@ -14,14 +14,19 @@
 .payment-history-card-heading p { margin:0; font-size:11px; opacity:.55; }
 .payment-sort { display:flex; align-items:center; gap:9px; font-size:10px; opacity:.65; }
 .payment-sort select { appearance:none; border:0; outline:0; border-radius:9px; padding:9px 28px 9px 11px; background:rgba(255,255,255,.07); color:inherit; font:inherit; cursor:pointer; }
+.payment-sort select:disabled { cursor:not-allowed; opacity:.5; }
 .payment-sort option { background:#161616; color:#fff; }
 .payment-list { border-top:1px solid rgba(255,255,255,.08); }
+.payment-history-state { display:grid; place-items:center; min-height:180px; padding:30px 20px; text-align:center; opacity:.65; }
+.payment-history-state h3 { margin:0 0 7px; font-size:14px; opacity:.9; }
+.payment-history-state p { margin:0; font-size:11px; }
+.payment-history-error { color:inherit; }
 .payment-row { position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:24px; padding:20px 4px; border-bottom:1px solid rgba(255,255,255,.08); }
 .payment-row:last-child { border-bottom:0; }
 .payment-row-main { display:flex; align-items:flex-start; gap:12px; min-width:0; }
 .payment-status-icon { flex:0 0 auto; font-size:20px; margin-top:2px; }
 .payment-details h3 { margin:0 0 6px; font-size:12px; font-weight:600; }
-.payment-details p { margin:3px 0; font-size:10px; opacity:.55; }
+.payment-details p { margin:3px 0; font-size:10px; opacity:.55; overflow-wrap:anywhere; }
 .payment-details strong { opacity:.85; font-weight:500; }
 .payment-row-amount { text-align:right; min-width:105px; }
 .payment-row-amount > strong { display:block; font-size:12px; font-weight:600; }
@@ -33,6 +38,9 @@
 .payment-menu { position:absolute; right:0; top:38px; z-index:20; min-width:165px; padding:6px; border-radius:11px; background:rgba(25,25,25,.98); box-shadow:0 12px 35px rgba(0,0,0,.25); }
 .payment-menu a, .payment-menu button { width:100%; display:flex; align-items:center; gap:8px; padding:9px 10px; border:0; border-radius:7px; background:transparent; color:inherit; text-decoration:none; text-align:left; font:inherit; font-size:10px; cursor:pointer; }
 .payment-menu a:hover, .payment-menu button:hover { background:rgba(255,255,255,.07); }
+.payment-history-pagination { display:flex; align-items:center; justify-content:center; gap:14px; padding-top:22px; font-size:10px; }
+.payment-history-pagination button { border:0; border-radius:9px; padding:9px 12px; background:rgba(255,255,255,.07); color:inherit; font:inherit; cursor:pointer; }
+.payment-history-pagination button:disabled { cursor:not-allowed; opacity:.35; }
 @media (max-width:760px) {
   .payment-history-content { width:min(100% - 28px,980px); padding-top:24px; }
   .payment-history-back { margin-bottom:36px; }
@@ -41,4 +49,5 @@
   .payment-row { grid-template-columns:1fr auto; gap:12px; }
   .payment-actions { grid-column:1 / -1; padding-left:32px; }
   .payment-row-amount { align-self:start; }
+  .payment-history-pagination { gap:9px; }
 }
