@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { IonIcon } from "@ionic/react";
 import { checkmarkCircle, logoApple, logoGoogle, warning } from "ionicons/icons";
 import { ApiError, login } from "@/lib/api";
@@ -11,6 +12,7 @@ function isValidEmail(value: string) {
 }
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -49,6 +51,7 @@ export default function LoginPage() {
       localStorage.setItem("echostream_token_type", tokens.token_type);
 
       setSuccess("Login successful.");
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -76,15 +79,8 @@ export default function LoginPage() {
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
           {error && (
-            <div
-              className="flex items-start gap-3 border border-[#e5f54a]/20 bg-[#e5f54a]/[0.045] px-4 py-3.5 text-left"
-              role="alert"
-            >
-              <IonIcon
-                icon={warning}
-                className="mt-0.5 h-5 w-5 shrink-0 text-[#e5f54a]"
-                aria-hidden="true"
-              />
+            <div className="flex items-start gap-3 border border-[#e5f54a]/20 bg-[#e5f54a]/[0.045] px-4 py-3.5 text-left" role="alert">
+              <IonIcon icon={warning} className="mt-0.5 h-5 w-5 shrink-0 text-[#e5f54a]" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium text-[#f4f7f7]">Unable to sign in</p>
                 <p className="mt-0.5 text-xs leading-5 text-[#a7b0b2]">{error}</p>
@@ -93,15 +89,8 @@ export default function LoginPage() {
           )}
 
           {success && (
-            <div
-              className="flex items-start gap-3 border border-[#6ee7e5]/20 bg-[#6ee7e5]/[0.04] px-4 py-3.5 text-left"
-              role="status"
-            >
-              <IonIcon
-                icon={checkmarkCircle}
-                className="mt-0.5 h-5 w-5 shrink-0 text-[#6ee7e5]"
-                aria-hidden="true"
-              />
+            <div className="flex items-start gap-3 border border-[#6ee7e5]/20 bg-[#6ee7e5]/[0.04] px-4 py-3.5 text-left" role="status">
+              <IonIcon icon={checkmarkCircle} className="mt-0.5 h-5 w-5 shrink-0 text-[#6ee7e5]" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium text-[#f4f7f7]">Login successful</p>
                 <p className="mt-0.5 text-xs leading-5 text-[#a7b0b2]">{success}</p>
@@ -111,32 +100,12 @@ export default function LoginPage() {
 
           <label htmlFor="email">
             <span>Email</span>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              disabled={loading}
-            />
+            <input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required disabled={loading} />
           </label>
 
           <label htmlFor="password">
             <span>Password</span>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              disabled={loading}
-            />
+            <input id="password" name="password" type="password" autoComplete="current-password" placeholder="Enter your password" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={loading} />
           </label>
 
           <button type="submit" className="login-submit" disabled={loading}>
@@ -144,24 +113,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="login-divider" aria-hidden="true">
-          <span>or</span>
-        </div>
+        <div className="login-divider" aria-hidden="true"><span>or</span></div>
 
         <div className="login-socials">
-          <button type="button" className="login-social">
-            <IonIcon icon={logoGoogle} aria-hidden="true" />
-            <span>Continue with Google</span>
-          </button>
-          <button type="button" className="login-social">
-            <IonIcon icon={logoApple} aria-hidden="true" />
-            <span>Continue with Apple</span>
-          </button>
+          <button type="button" className="login-social"><IonIcon icon={logoGoogle} aria-hidden="true" /><span>Continue with Google</span></button>
+          <button type="button" className="login-social"><IonIcon icon={logoApple} aria-hidden="true" /><span>Continue with Apple</span></button>
         </div>
 
-        <p className="login-signup">
-          Don&apos;t have an account? <Link href="/getmobile">Sign up</Link>
-        </p>
+        <p className="login-signup">Don&apos;t have an account? <Link href="/getmobile">Sign up</Link></p>
       </div>
     </main>
   );
