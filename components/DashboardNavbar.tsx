@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { chevronDownOutline } from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
-import { ApiError, logout } from "@/lib/api";
+import { ApiError, clearSessionData, logout } from "@/lib/api";
 
 export default function DashboardNavbar() {
   const router = useRouter();
@@ -48,6 +48,7 @@ export default function DashboardNavbar() {
       localStorage.removeItem("echostream_access_token");
       localStorage.removeItem("echostream_refresh_token");
       localStorage.removeItem("echostream_token_type");
+      clearSessionData();
       router.replace("/login");
     }
   }
@@ -62,28 +63,14 @@ export default function DashboardNavbar() {
 
         <div className="dashboard-nav-actions">
           <div className="dashboard-dropdown" ref={plansRef}>
-            <button
-              type="button"
-              className="dashboard-nav-link dashboard-dropdown-trigger"
-              aria-expanded={plansOpen}
-              onClick={() => {
-                setPlansOpen(!plansOpen);
-                setProfileOpen(false);
-              }}
-            >
+            <button type="button" className="dashboard-nav-link dashboard-dropdown-trigger" aria-expanded={plansOpen} onClick={() => { setPlansOpen(!plansOpen); setProfileOpen(false); }}>
               Premium Plans
               <IonIcon icon={chevronDownOutline} aria-hidden="true" />
             </button>
             {plansOpen && (
               <div className="dashboard-menu dashboard-plans-menu">
-                <Link href="/plans/essential" onClick={() => setPlansOpen(false)}>
-                  <strong>Essential</strong>
-                  <span>More power for your streams</span>
-                </Link>
-                <Link href="/plans/pro" onClick={() => setPlansOpen(false)}>
-                  <strong>Pro</strong>
-                  <span>Advanced voices and features</span>
-                </Link>
+                <Link href="/plans/essential" onClick={() => setPlansOpen(false)}><strong>Essential</strong><span>More power for your streams</span></Link>
+                <Link href="/plans/pro" onClick={() => setPlansOpen(false)}><strong>Pro</strong><span>Advanced voices and features</span></Link>
               </div>
             )}
           </div>
@@ -92,24 +79,9 @@ export default function DashboardNavbar() {
           <Link href="/getmobile" className="dashboard-nav-link">Download</Link>
 
           <div className="dashboard-profile" ref={profileRef}>
-            <button
-              type="button"
-              className="dashboard-profile-trigger"
-              aria-label="Open profile menu"
-              aria-expanded={profileOpen}
-              onClick={() => {
-                setProfileOpen(!profileOpen);
-                setPlansOpen(false);
-              }}
-            >
+            <button type="button" className="dashboard-profile-trigger" aria-label="Open profile menu" aria-expanded={profileOpen} onClick={() => { setProfileOpen(!profileOpen); setPlansOpen(false); }}>
               <span className="dashboard-avatar">
-                <img
-                  src="/avatar.jpg"
-                  alt=""
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
-                />
+                <img src="/avatar.jpg" alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
                 <span aria-hidden="true">WU</span>
               </span>
               <span className="dashboard-profile-label">Profile</span>
@@ -119,9 +91,7 @@ export default function DashboardNavbar() {
             {profileOpen && (
               <div className="dashboard-menu dashboard-profile-menu">
                 <Link href="/account" onClick={() => setProfileOpen(false)}>Account</Link>
-                <button type="button" onClick={handleLogout} disabled={loggingOut}>
-                  {loggingOut ? "Logging out..." : "Log out"}
-                </button>
+                <button type="button" onClick={handleLogout} disabled={loggingOut}>{loggingOut ? "Logging out..." : "Log out"}</button>
               </div>
             )}
           </div>
