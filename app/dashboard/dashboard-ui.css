@@ -71,6 +71,18 @@
 .dashboard-action-card:disabled:hover {
   background: transparent;
 }
+.dashboard-plan-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: dashboard-spin 0.75s linear infinite;
+}
+@keyframes dashboard-spin {
+  to { transform: rotate(360deg); }
+}
 @media (max-width: 768px) {
   .dashboard-section-card {
     padding: 22px 18px;
