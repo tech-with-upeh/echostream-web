@@ -90,7 +90,11 @@ function SubscriptionCard() {
       <span className="dashboard-plan-badge">Your plan</span>
       <div className="dashboard-plan-heading">
         <img src="/logo.svg" alt="" aria-hidden="true" />
-        <h1>{loading ? "Loading..." : plan || "Starter"}</h1>
+        {loading ? (
+          <span className="dashboard-plan-spinner" role="status" aria-label="Loading subscription" />
+        ) : (
+          <h1>{plan || "Starter"}</h1>
+        )}
       </div>
 
       {subscription?.type === "one_time" ? (
