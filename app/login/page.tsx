@@ -6,6 +6,10 @@ import { IonIcon } from "@ionic/react";
 import { checkmarkCircle, logoApple, logoGoogle, warning } from "ionicons/icons";
 import { ApiError, login } from "@/lib/api";
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value.trim());
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,10 +21,28 @@ export default function LoginPage() {
     event.preventDefault();
     setError("");
     setSuccess("");
+
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
+      setError("Email is required.");
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      setError("Enter a valid email address, such as you@example.com.");
+      return;
+    }
+
+    if (!password) {
+      setError("Password is required.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const tokens = await login(email, password);
+      const tokens = await login(normalizedEmail, password);
 
       localStorage.setItem("echostream_access_token", tokens.access_token);
       localStorage.setItem("echostream_refresh_token", tokens.refresh_token);
