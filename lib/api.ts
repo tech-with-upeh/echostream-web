@@ -14,6 +14,9 @@ export type PaymentReceiptResponse = { customer: { name: string; email: string; 
 
 const SESSION_USER_KEY = "echostream_session_user";
 const SESSION_SUBSCRIPTION_KEY = "echostream_session_subscription";
+const ACCESS_TOKEN_KEY = "echostream_access_token";
+const REFRESH_TOKEN_KEY = "echostream_refresh_token";
+const TOKEN_TYPE_KEY = "echostream_token_type";
 
 export class ApiError extends Error { status: number; constructor(message: string, status: number) { super(message); this.name = "ApiError"; this.status = status; } }
 
@@ -28,10 +31,66 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   return data as T;
 }
 
-function authenticatedFetch<T>(path: string, options: RequestInit = {}) {
-  const accessToken = localStorage.getItem("echostream_access_token");
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+  if (!refreshToken) throw new ApiError("Authentication required.", 401);
+
+  if (!refreshPromise) {
+    refreshPromise = apiFetch<LoginResponse>("/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    })
+      .then((tokens) => {
+        localStorage.setItem(ACCESS_TOKEN_KEY, tokens.access_token);
+        localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh_token);
+        localStorage.setItem(TOKEN_TYPE_KEY, tokens.token_type);
+        return tokens.access_token;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+}
+
+function clearAuthentication() {
+  try {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_TYPE_KEY);
+    clearSessionData();
+  } catch {}
+}
+
+async function authenticatedFetch<T>(path: string, options: RequestInit = {}) {
+  let accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
   if (!accessToken) throw new ApiError("Authentication required.", 401);
-  return apiFetch<T>(path, { ...options, headers: { Authorization: `Bearer ${accessToken}`, ...options.headers } });
+
+  const request = () => apiFetch<T>(path, {
+    ...options,
+    headers: { Authorization: `Bearer ${accessToken}`, ...options.headers },
+  });
+
+  try {
+    return await request();
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401) throw error;
+
+    try {
+      accessToken = await refreshAccessToken();
+      return await request();
+    } catch (refreshError) {
+      clearAuthentication();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+      if (refreshError instanceof ApiError) throw refreshError;
+      throw new ApiError("Your session has expired. Please log in again.", 401);
+    }
+  }
 }
 function readSession<T>(key: string) { try { const value = sessionStorage.getItem(key); return value ? JSON.parse(value) as T : null; } catch { return null; } }
 function writeSession<T>(key: string, value: T) { try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {} }
