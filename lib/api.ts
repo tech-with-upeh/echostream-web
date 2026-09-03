@@ -37,6 +37,14 @@ export type SubscriptionManagement = {
   subscription_code?: string;
 };
 
+export type SubscriptionCheckoutResponse = {
+  authorization_url: string | null;
+  access_code: string | null;
+  reference: string;
+  plan: string;
+  interval: string;
+};
+
 export class ApiError extends Error {
   status: number;
 
@@ -86,7 +94,7 @@ export async function apiFetch<T>(
   return data as T;
 }
 
-function authenticatedFetch<T>(path: string) {
+function authenticatedFetch<T>(path: string, options: RequestInit = {}) {
   const accessToken = localStorage.getItem("echostream_access_token");
 
   if (!accessToken) {
@@ -94,8 +102,10 @@ function authenticatedFetch<T>(path: string) {
   }
 
   return apiFetch<T>(path, {
+    ...options,
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      ...options.headers,
     },
   });
 }
@@ -106,6 +116,13 @@ export function getCurrentUser() {
 
 export function getSubscriptionManagement() {
   return authenticatedFetch<SubscriptionManagement>("/payments/manage");
+}
+
+export function subscribeToPlan(plan: string, interval = "month") {
+  return authenticatedFetch<SubscriptionCheckoutResponse>(
+    `/payments/subscribe?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
+    { method: "POST" },
+  );
 }
 
 export function login(email: string, password: string) {
