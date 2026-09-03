@@ -66,6 +66,13 @@ export function login(email: string, password: string) {
   });
 }
 
+export function googleLogin(idToken: string) {
+  return apiFetch<LoginResponse>("/auth/google", {
+    method: "POST",
+    body: JSON.stringify({ id_token: idToken }),
+  });
+}
+
 export function logout(accessToken: string) {
   return apiFetch<unknown>("/logout", {
     method: "POST",
