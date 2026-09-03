@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IonIcon } from "@ionic/react";
@@ -17,8 +17,17 @@ declare global {
             callback: (response: { credential: string }) => void;
             auto_select?: boolean;
             cancel_on_tap_outside?: boolean;
-        }) => void;
-          prompt: () => void;
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: {
+              type?: "standard" | "icon";
+              theme?: "outline" | "filled_blue" | "filled_black";
+              size?: "large" | "medium" | "small";
+              width?: number | string;
+              text?: string;
+            },
+          ) => void;
         };
       };
     };
@@ -31,6 +40,7 @@ function isValidEmail(value: string) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const googleButtonRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -63,13 +73,22 @@ export default function LoginPage() {
     );
 
     const initializeGoogle = () => {
-      if (!window.google) return;
+      if (!window.google || !googleButtonRef.current) return;
 
       window.google.accounts.id.initialize({
         client_id: googleClientId,
         callback: handleGoogleCredential,
         auto_select: false,
         cancel_on_tap_outside: true,
+      });
+
+      googleButtonRef.current.innerHTML = "";
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        width: "100%",
+        text: "continue_with",
       });
 
       setGoogleReady(true);
@@ -117,23 +136,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function handleGoogleLogin() {
-    setError("");
-    setSuccess("");
-
-    if (!googleClientId) {
-      setError("Google sign-in is not configured yet.");
-      return;
-    }
-
-    if (!googleReady || !window.google) {
-      setError("Google sign-in is still loading. Please try again in a moment.");
-      return;
-    }
-
-    window.google.accounts.id.prompt();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -237,9 +239,16 @@ export default function LoginPage() {
         <div className="login-divider" aria-hidden="true"><span>or</span></div>
 
         <div className="login-socials">
-          <button type="button" className="login-social" onClick={handleGoogleLogin} disabled={loading}>
-            <IonIcon icon={logoGoogle} aria-hidden="true" /><span>Continue with Google</span>
-          </button>
+          <div className="relative overflow-hidden">
+            <button type="button" className="login-social" disabled={loading}>
+              <IonIcon icon={logoGoogle} aria-hidden="true" /><span>Continue with Google</span>
+            </button>
+            <div
+              ref={googleButtonRef}
+              aria-hidden="true"
+              className="absolute inset-0 z-10 opacity-0"
+            />
+          </div>
           <button type="button" className="login-social" disabled={loading}>
             <IonIcon icon={logoApple} aria-hidden="true" /><span>Continue with Apple</span>
           </button>
