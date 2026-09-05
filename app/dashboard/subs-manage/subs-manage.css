@@ -1,1 +1,317 @@
-.subs-manage-page{min-height:100vh;background:var(--background);color:var(--foreground)}.subs-manage-content{width:min(980px,calc(100% - 48px));margin:0 auto;padding:34px 0 80px}.subs-back-button{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:12px;font-weight:600;margin-bottom:24px}.subs-back-button ion-icon{width:16px;height:16px}.subs-back-button:hover{color:var(--foreground)}.subs-plan-card{background:rgba(255,255,255,.1);border-radius:24px;padding:34px 36px;min-height:330px;display:flex;flex-direction:column;justify-content:space-between}.subs-eyebrow{display:block;color:var(--accent);font-size:9px;font-weight:800;letter-spacing:1.5px}.subs-plan-brand{display:flex;align-items:center;gap:15px;margin-top:24px}.subs-plan-brand img{width:46px;height:46px;object-fit:contain}.subs-plan-brand h1{margin:0;font-size:32px;font-weight:550;letter-spacing:-1.2px}.subs-plan-brand p{margin:5px 0 0;color:var(--muted);font-size:12px}.subs-plan-description{max-width:570px;margin:22px 0 0;color:var(--muted);font-size:12px;line-height:1.7}.subs-plan-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-top:38px}.subs-plan-bottom div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.subs-plan-bottom span{color:var(--muted);font-size:10px}.subs-plan-bottom strong{font-size:17px;font-weight:600}.subs-plan-bottom small{color:var(--muted);font-size:10px}.subs-change-plan{display:inline-flex;align-items:center;justify-content:center;min-width:130px;height:42px;padding:0 18px;border-radius:11px;background:var(--accent);color:#071415;text-decoration:none;font-size:11px;font-weight:800}.subs-cancel-section{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:28px 4px}.subs-cancel-section h2{margin:0;font-size:16px;font-weight:600}.subs-cancel-section p{max-width:650px;margin:7px 0 0;color:var(--muted);font-size:10.5px;line-height:1.6}.subs-cancel-button{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 15px;border:0;border-radius:9px;background:rgba(255,255,255,.06);color:var(--muted);font:inherit;font-size:10px;font-weight:650;cursor:pointer;text-decoration:none}.subs-cancel-button:hover{background:rgba(255,255,255,.1);color:var(--foreground)}.subs-cancel-disabled{cursor:not-allowed;opacity:.5;pointer-events:none}.subs-payment-card{background:rgba(255,255,255,.1);border-radius:20px;padding:28px 30px}.subs-payment-heading h2{margin:8px 0 7px;font-size:21px;font-weight:600}.subs-payment-heading p{margin:0;color:var(--muted);font-size:11px}.subs-payment-heading p strong{color:var(--foreground);font-weight:600}.subs-payment-card hr{border:0;height:1px;background:rgba(255,255,255,.1);margin:25px 0}.subs-payment-method{display:flex;align-items:center;gap:15px}.subs-card-icon{width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}.subs-card-icon ion-icon{width:21px;height:21px}.subs-card-info{display:flex;flex-direction:column;gap:5px}.subs-card-info span{font-size:12px;font-weight:600}.subs-card-info strong{color:var(--muted);font-size:10px;font-weight:500}.subs-card-info b{margin:0 6px;color:rgba(255,255,255,.3);font-weight:400}.subs-update-card{margin-left:auto;border:0;background:transparent;color:var(--accent);font:inherit;font-size:10px;font-weight:700;cursor:pointer}.subs-update-card:disabled{cursor:not-allowed;opacity:.45}.subs-expiring-notice{display:flex;align-items:center;justify-content:center;gap:30px;margin:28px 0 0;padding:25px 30px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--muted)}.subs-expiring-illustration{width:150px;height:auto;flex:0 0 auto;color:var(--accent)}.subs-expiring-notice p{max-width:420px;margin:0;color:var(--foreground);font-size:13px;line-height:1.7;font-weight:500}.subs-expiring-notice p::first-line{font-weight:600}@media(max-width:700px){.subs-manage-content{width:calc(100% - 36px);padding-top:24px}.subs-plan-card{padding:25px 22px;min-height:340px;border-radius:20px}.subs-plan-brand h1{font-size:27px}.subs-plan-bottom{align-items:stretch;flex-direction:column}.subs-change-plan{width:100%}.subs-cancel-section{align-items:flex-start;flex-direction:column;padding:25px 2px}.subs-cancel-button{width:100%}.subs-payment-card{padding:23px 20px}.subs-payment-method{gap:11px}.subs-card-info strong{font-size:9px}.subs-update-card{font-size:9px}.subs-expiring-notice{flex-direction:column;gap:15px;text-align:center;padding:25px 20px}.subs-expiring-illustration{width:125px}.subs-expiring-notice p{max-width:100%;font-size:12px}}
+.subs-manage-page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+.subs-manage-content {
+  width: min(980px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 34px 0 80px;
+}
+.subs-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+.subs-back-button ion-icon {
+  width: 16px;
+  height: 16px;
+}
+.subs-back-button:hover {
+  color: var(--foreground);
+}
+.subs-plan-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 34px 36px;
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.subs-eyebrow {
+  display: block;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+.subs-plan-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 24px;
+}
+.subs-plan-brand img {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+.subs-plan-brand h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 550;
+  letter-spacing: -1.2px;
+}
+.subs-plan-brand p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.subs-plan-description {
+  max-width: 570px;
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.subs-plan-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 38px;
+}
+.subs-plan-bottom div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.subs-plan-bottom span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.subs-plan-bottom strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+.subs-plan-bottom small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.subs-change-plan {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 130px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 11px;
+  background: var(--accent);
+  color: #071415;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+}
+.subs-cancel-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 28px 4px;
+}
+.subs-cancel-section h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.subs-cancel-section p {
+  max-width: 650px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+.subs-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+  text-decoration: none;
+}
+.subs-cancel-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+}
+.subs-cancel-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.subs-payment-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 28px 30px;
+}
+.subs-payment-heading h2 {
+  margin: 8px 0 7px;
+  font-size: 21px;
+  font-weight: 600;
+}
+.subs-payment-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.subs-payment-heading p strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+.subs-payment-card hr {
+  border: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 25px 0;
+}
+.subs-payment-method {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.subs-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.subs-card-icon ion-icon {
+  width: 21px;
+  height: 21px;
+}
+.subs-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.subs-card-info span {
+  font-size: 12px;
+  font-weight: 600;
+}
+.subs-card-info strong {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+.subs-card-info b {
+  margin: 0 6px;
+  color: rgba(255, 255, 255, 0.3);
+  font-weight: 400;
+}
+.subs-update-card {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.subs-update-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.subs-expiring-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin: 28px 0 0;
+  padding: 25px 30px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+.subs-expiring-illustration {
+  width: 150px;
+  height: auto;
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+.subs-expiring-notice p {
+  max-width: 420px;
+  margin: 0;
+  color: var(--foreground);
+  font-size: 13px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+.subs-expiring-notice p::first-line {
+  font-weight: 600;
+}
+@media (max-width: 700px) {
+  .subs-manage-content {
+    width: calc(100% - 36px);
+    padding-top: 24px;
+  }
+  .subs-plan-card {
+    padding: 25px 22px;
+    min-height: 340px;
+    border-radius: 20px;
+  }
+  .subs-plan-brand h1 {
+    font-size: 27px;
+  }
+  .subs-plan-bottom {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .subs-change-plan {
+    width: 100%;
+  }
+  .subs-cancel-section {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 25px 2px;
+  }
+  .subs-cancel-button {
+    width: 100%;
+  }
+  .subs-payment-card {
+    padding: 23px 20px;
+  }
+  .subs-payment-method {
+    gap: 11px;
+  }
+  .subs-card-info strong {
+    font-size: 9px;
+  }
+  .subs-update-card {
+    font-size: 9px;
+  }
+  .subs-expiring-notice {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    padding: 25px 20px;
+  }
+  .subs-expiring-illustration {
+    width: 125px;
+  }
+  .subs-expiring-notice p {
+    max-width: 100%;
+    font-size: 12px;
+  }
+}
