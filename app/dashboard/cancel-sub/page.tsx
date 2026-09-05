@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { IonIcon } from "@ionic/react";
 import { arrowBackOutline, checkmarkCircleOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import DashboardNavbar from "@/components/DashboardNavbar";
 import {
   cacheSubscriptionManagement,
   getSessionSubscription,
@@ -25,8 +26,50 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
+function formatPlan(value: string | null | undefined) {
+  if (!value) return "current";
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function isCancelledPaymentMethod(value: string | null | undefined) {
+  return [
+    "cancel",
+    "canceled",
+    "cancelled",
+    "non_renewing",
+    "non-renewing",
+  ].includes((value || "").trim().toLowerCase());
+}
+
+function ExpiringSubscriptionNotice({ oneTime }: { oneTime: boolean }) {
+  return (
+    <div className="cancel-sub-expiring-notice">
+      <img
+        src="/noreoccuring.svg"
+        alt="No recurring payment"
+        className="cancel-sub-expiring-illustration"
+      />
+      <p>
+        {oneTime
+          ? "Your current subscription will expire after the billing period. Please add a payment method."
+          : "Your current subscription is cancelled and will expire after the billing period. Please add a payment method."}
+      </p>
+      <button
+        type="button"
+        className="cancel-sub-change-plan"
+        onClick={() => window.location.assign("/pricing")}
+      >
+        Change plan
+      </button>
+    </div>
+  );
+}
+
 export default function CancelSubscriptionPage() {
-  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(() => getSessionSubscription());
+  const router = useRouter();
+  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(
+    () => getSessionSubscription(),
+  );
   const [loading, setLoading] = useState(() => !getSessionSubscription());
 
   useEffect(() => {
@@ -50,36 +93,45 @@ export default function CancelSubscriptionPage() {
   }, []);
 
   const isOneTime = subscription?.type === "one_time";
+  const paymentMethodCancelled = isCancelledPaymentMethod(
+    subscription?.payment_method,
+  );
+  const needsPaymentMethod = isOneTime || paymentMethodCancelled;
   const endDate = formatDate(subscription?.subscription_ends_at ?? null);
+  const plan = formatPlan(subscription?.plan);
 
   return (
     <main className="cancel-sub-page">
+      <DashboardNavbar />
       <section className="cancel-sub-content">
-        <Link href="/dashboard" className="cancel-sub-back">
+        <button
+          type="button"
+          className="cancel-sub-back"
+          onClick={() => router.push("/dashboard/subs-manage")}
+        >
           <IonIcon icon={arrowBackOutline} aria-hidden="true" />
           <span>Back</span>
-        </Link>
+        </button>
 
         {loading ? (
           <div className="cancel-sub-card cancel-sub-loading" aria-live="polite">
-            <span className="subs-spinner" role="status" aria-label="Loading subscription" />
-          </div>
-        ) : isOneTime ? (
-          <div className="cancel-sub-card cancel-sub-one-time">
-            <img
-              src="/noreoccuring.svg"
-              alt=""
-              aria-hidden="true"
-              className="cancel-sub-one-time-illustration"
+            <span
+              className="subs-spinner"
+              role="status"
+              aria-label="Loading subscription"
             />
-            <h1>No cancellation needed</h1>
-            <p className="cancel-sub-intro">
-              Your {subscription?.plan ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1).toLowerCase() : "current"} plan was purchased as a one-time payment, so there is no recurring subscription to cancel. You can continue using your plan until {endDate}.
-            </p>
-            <p className="cancel-sub-one-time-note">
-              Once your current access expires, you can choose a new plan if you want to continue using EchoStream.
-            </p>
           </div>
+        ) : needsPaymentMethod ? (
+          <>
+            <div className="cancel-sub-card cancel-sub-plan-card">
+              <span className="cancel-sub-eyebrow">CURRENT PLAN</span>
+              <h1>{plan} Plan</h1>
+              <p className="cancel-sub-intro">
+                Your current plan remains active until {endDate}.
+              </p>
+            </div>
+            <ExpiringSubscriptionNotice oneTime={isOneTime} />
+          </>
         ) : (
           <div className="cancel-sub-card">
             <h1>How your Stream will change</h1>
@@ -107,9 +159,13 @@ export default function CancelSubscriptionPage() {
             </div>
 
             <div className="cancel-sub-actions">
-              <Link href="/dashboard/subs-manage" className="cancel-sub-account-btn">
+              <button
+                type="button"
+                className="cancel-sub-account-btn"
+                onClick={() => router.push("/dashboard/subs-manage")}
+              >
                 Back to account
-              </Link>
+              </button>
               <button type="button" className="cancel-sub-confirm-btn">
                 Continue to cancel
               </button>
