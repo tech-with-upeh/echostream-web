@@ -6,7 +6,8 @@ if (!BACKEND_URL) {
 
 export type LoginResponse = { access_token: string; refresh_token: string; token_type: string; };
 export type CurrentUser = { id: number; first_name: string; last_name: string; email: string; is_verified: boolean; plan: string; subscription_status: string; trial_ends_at: string | null; subscription_ends_at: string | null; };
-export type SubscriptionManagement = { type: "one_time" | "recurring"; plan: string; interval: string; payment_method: string; payment_channel: string | null; subscription_ends_at: string | null; can_cancel: boolean; can_renew: boolean; management_link: string | null; subscription_status?: string; link?: string | null; subscription_code?: string; };
+export type PaymentMethodDetails = { method: string | null; brand: string | null; last4: string | null; bank: string | null; card_type: string | null; };
+export type SubscriptionManagement = { type: "one_time" | "recurring"; plan: string; interval: string; payment_method: string; payment_channel: string | null; payment_method_details: PaymentMethodDetails; subscription_ends_at: string | null; can_cancel: boolean; can_renew: boolean; management_link: string | null; subscription_status?: string; link?: string | null; subscription_code?: string; };
 export type SubscriptionCheckoutResponse = { authorization_url: string | null; access_code: string | null; reference: string; plan: string; interval: string; };
 export type PaymentHistoryItem = { id: number; payment_id: string; receipt_number: string; provider: string; provider_reference: string; billing_type: string; method: string | null; reference: string; plan: string; interval: string | null; amount: number | null; currency: string; status: string; channel: string | null; payment_method: string | null; event: string; paid_at: string | null; created_at: string; };
 export type PaymentHistoryResponse = { items: PaymentHistoryItem[]; total: number; page: number; per_page: number; };
@@ -101,7 +102,7 @@ export function cacheSubscriptionManagement(subscription: SubscriptionManagement
 export function clearSessionData() { try { sessionStorage.removeItem(SESSION_USER_KEY); sessionStorage.removeItem(SESSION_SUBSCRIPTION_KEY); } catch {} }
 export function getCurrentUser() { return authenticatedFetch<CurrentUser>("/users/me"); }
 export function getSubscriptionManagement() { return authenticatedFetch<SubscriptionManagement>("/payments/manage"); }
-export function getPaymentHistory(page = 1, perPage = 20) { const params = new URLSearchParams({ page: String(page), per_page: String(perPage) }); return authenticatedFetch<PaymentHistoryResponse>(`/payments/history?${params.toString()}`); }
+export function getPaymentHistory(page = 1, perPage = 20, sort = "newest") { const params = new URLSearchParams({ page: String(page), per_page: String(perPage), sort }); return authenticatedFetch<PaymentHistoryResponse>(`/payments/history?${params.toString()}`); }
 export function getPaymentReceipt(paymentId: string) { return authenticatedFetch<PaymentReceiptResponse>(`/payments/history/${encodeURIComponent(paymentId)}/receipt`); }
 export function subscribeToPlan(plan: string, interval = "month") { return authenticatedFetch<SubscriptionCheckoutResponse>(`/payments/subscribe?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`, { method: "POST" }); }
 export function login(email: string, password: string) { return apiFetch<LoginResponse>("/login", { method: "POST", body: JSON.stringify({ email, password }) }); }
