@@ -7,9 +7,9 @@
 .receipt-card-header { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; padding:28px; border-bottom:1px solid rgba(255,255,255,.08); }
 .receipt-brand { font-size:19px; font-weight:700; letter-spacing:-.04em; }
 .receipt-card-header p { margin:5px 0 0; font-size:11px; opacity:.5; }
-.receipt-paid-badge { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.07); font-size:10px; opacity:.7; }
+.receipt-paid-badge { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:rgba(255,255,255,.07); font-size:10px; opacity:.7; color:#ef4444; }
 .receipt-paid-badge ion-icon { font-size:14px; }
-.receipt-paid-badge.is-paid { opacity:.9; }
+.receipt-paid-badge.is-paid { opacity:.95; color:#22c55e; background:rgba(34,197,94,.1); }
 .receipt-total { padding:34px 28px; text-align:center; background:rgba(255,255,255,.035); }
 .receipt-total span { display:block; font-size:10px; text-transform:uppercase; letter-spacing:.12em; opacity:.5; }
 .receipt-total strong { display:block; margin:8px 0 5px; font-size:clamp(28px,6vw,40px); letter-spacing:-.04em; font-weight:600; }
@@ -41,7 +41,7 @@
   .receipt-card { background:white; color:black; border:1px solid #ddd; }
   .receipt-card * { border-color:#ddd !important; }
   .receipt-total,.receipt-panel { background:#fafafa; }
-  .receipt-paid-badge { background:#eee; }
+  .receipt-paid-badge { background:#eee; color:#444; }
 }
 @media (max-width:650px) {
   .receipt-content { width:min(100% - 28px,760px); padding-top:24px; }
