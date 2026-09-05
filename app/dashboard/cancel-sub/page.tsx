@@ -55,7 +55,7 @@ export default function CancelSubscriptionPage() {
   return (
     <main className="cancel-sub-page">
       <section className="cancel-sub-content">
-        <Link href="/dashboard/subs-manage" className="cancel-sub-back">
+        <Link href="/dashboard" className="cancel-sub-back">
           <IonIcon icon={arrowBackOutline} aria-hidden="true" />
           <span>Back</span>
         </Link>

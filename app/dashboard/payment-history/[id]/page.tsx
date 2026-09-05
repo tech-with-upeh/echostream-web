@@ -99,7 +99,7 @@ export default function PaymentReceiptPage() {
             <div className="receipt-detail-row"><span>Paid on</span><strong>{formatDateTime(payment.paid_at)}</strong></div>
           </section>
 
-          {(subscription.starts_at || subscription.ends_at) && (
+          {(subscription?.starts_at || subscription?.ends_at) && (
             <section className="receipt-details">
               <div className="receipt-section-title">Access period</div>
               <div className="receipt-detail-row"><span>Starts</span><strong>{formatDate(subscription.starts_at)}</strong></div>
