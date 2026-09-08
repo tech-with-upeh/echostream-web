@@ -49,6 +49,47 @@ export type SubscriptionCheckoutResponse = {
   plan: string;
   interval: string;
 };
+export type UpgradeQuote = {
+  current_plan: string;
+  current_interval: string;
+  new_plan: string;
+  new_interval: string;
+  currency: string;
+  current_plan_price: number;
+  new_plan_price: number;
+  billing_interval: string;
+  current_period_start: string;
+  current_period_ends_at: string;
+  total_days: number;
+  remaining_days: number;
+  unused_value: number;
+  credit_applied: number;
+  upgrade_amount: number;
+  credit_remaining: number;
+  first_debit: string;
+};
+export type UpgradeResponse = {
+  status: string;
+  payment_method?: "one_time" | "recurring";
+  payment_channel?: string;
+  current_plan?: string;
+  current_interval?: string;
+  new_plan?: string;
+  new_interval?: string;
+  plan?: string;
+  interval?: string;
+  subscription_status?: string;
+  subscription_ends_at?: string | null;
+  reference?: string;
+  subscription_code?: string | null;
+  old_subscription_code?: string | null;
+  authorization_url?: string | null;
+  access_code?: string | null;
+  credit_applied?: number;
+  upgrade_amount?: number;
+  first_debit?: string;
+  credit_remaining?: number;
+};
 export type PaymentHistoryItem = {
   id: number;
   payment_id: string;
@@ -259,6 +300,23 @@ export function subscribeToPlan(plan: string, interval = "month") {
   return authenticatedFetch<SubscriptionCheckoutResponse>(
     `/payments/subscribe?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
     { method: "POST" },
+  );
+}
+export function getUpgradeQuote(plan: string, interval: string) {
+  return authenticatedFetch<UpgradeQuote>(
+    `/payments/upgrade/quote?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
+    { method: "POST" },
+  );
+}
+export function upgradeSubscription(plan: string, interval: string) {
+  return authenticatedFetch<UpgradeResponse>(
+    `/payments/upgrade?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
+    { method: "POST" },
+  );
+}
+export function verifyPayment(reference: string) {
+  return authenticatedFetch<UpgradeResponse>(
+    `/payments/verify/${encodeURIComponent(reference)}`,
   );
 }
 export function login(email: string, password: string) {
