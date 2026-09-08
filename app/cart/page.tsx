@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { IonIcon } from "@ionic/react";
 import { checkmark, cardOutline } from "ionicons/icons";
 import {
@@ -10,6 +10,7 @@ import {
   CurrentUser,
   getCurrentUser,
   getSessionSubscription,
+  getSessionUser,
   getSubscriptionManagement,
   subscribeToPlan,
   upgradeSubscription,
