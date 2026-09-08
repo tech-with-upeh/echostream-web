@@ -4,17 +4,20 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { IonIcon } from "@ionic/react";
-import { checkmark } from "ionicons/icons";
+import { checkmark, cardOutline } from "ionicons/icons";
 import {
   ApiError,
   CurrentUser,
   getCurrentUser,
-  getSessionUser,
-  getUpgradeQuote,
+  getSessionSubscription,
+  getSubscriptionManagement,
   subscribeToPlan,
   upgradeSubscription,
+  SubscriptionManagement,
+  getUpgradeQuote,
 } from "@/lib/api";
 import "../pricing/pricing.css";
+import "./cart.css";
 
 const PLANS = {
   essential: { name: "Essential", monthly: 1600, yearly: 16000 },
@@ -27,6 +30,14 @@ function money(value: number) {
   return `₦${Math.round(value).toLocaleString()}`;
 }
 
+function humanize(value: string | null | undefined) {
+  return value
+    ? value
+        .replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "Card";
+}
+
 export default function CartPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,10 +45,12 @@ export default function CartPage() {
   const initialInterval: Duration = searchParams.get("interval") === "year" ? "year" : "month";
 
   const [user, setUser] = useState<CurrentUser | null>(() => getSessionUser());
+  const [subscription, setSubscription] = useState<SubscriptionManagement | null>(() => getSessionSubscription());
   const [planKey, setPlanKey] = useState<keyof typeof PLANS>(PLANS[requestedPlan] ? requestedPlan : "essential");
   const [duration, setDuration] = useState<Duration>(initialInterval);
   const [quote, setQuote] = useState<Awaited<ReturnType<typeof getUpgradeQuote>> | null>(null);
   const [loadingUser, setLoadingUser] = useState(!getSessionUser());
+  const [loadingSubscription, setLoadingSubscription] = useState(!getSessionSubscription());
   const [loadingQuote, setLoadingQuote] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [error, setError] = useState("");
@@ -53,7 +66,27 @@ export default function CartPage() {
     return () => { mounted = false; };
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      setLoadingSubscription(false);
+      return;
+    }
+    let mounted = true;
+    getSubscriptionManagement()
+      .then((data) => mounted && setSubscription(data))
+      .catch(() => mounted && setSubscription(getSessionSubscription()))
+      .finally(() => mounted && setLoadingSubscription(false));
+    return () => { mounted = false; };
+  }, [user]);
+
   const currentPlan = user?.plan?.toLowerCase() || "starter";
+  const isRecurringSubscription = subscription?.type === "recurring";
+  const paymentDetails = subscription?.payment_method_details;
+  const hasCard = Boolean(paymentDetails?.last4);
+  const paymentName = humanize(
+    paymentDetails?.brand || paymentDetails?.card_type || subscription?.payment_method,
+  );
+
   const isUpgrade = !!user && currentPlan !== "starter" &&
     (planKey === "pro" || planKey === "essential") &&
     ({ starter: 0, essential: 1, pro: 2 }[planKey] > ({ starter: 0, essential: 1, pro: 2 }[currentPlan] ?? 0));
@@ -183,6 +216,34 @@ export default function CartPage() {
 
             <button type="button" className="coupon-link" onClick={() => setCouponOpen((open) => !open)} aria-expanded={couponOpen}>Use coupon code</button>
             {couponOpen && <div className="coupon-input-wrap"><input type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="Enter coupon code" aria-label="Coupon code" autoFocus /><button type="button">Apply</button></div>}
+
+            {user && isRecurringSubscription && !loadingSubscription && (
+              <section className="cart-payment-method" aria-label="Subscription payment method">
+                <div className="cart-payment-method-header">
+                  <div>
+                    <span className="cart-payment-eyebrow">PAYMENT METHOD</span>
+                    <h3>Subscription card</h3>
+                  </div>
+                  <IonIcon icon={cardOutline} aria-hidden="true" />
+                </div>
+                <div className="cart-payment-method-body">
+                  <div className="cart-payment-card-icon" aria-hidden="true">
+                    <IonIcon icon={cardOutline} />
+                  </div>
+                  <div className="cart-payment-details">
+                    <strong>{hasCard ? paymentName : "No card added"}</strong>
+                    <span>{hasCard ? `•••• ${paymentDetails?.last4}` : "Add a card for future recurring payments."}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="cart-payment-action"
+                    onClick={() => router.push("/dashboard/subs-manage")}
+                  >
+                    {hasCard ? "Change" : "Add card"}
+                  </button>
+                </div>
+              </section>
+            )}
 
             <button type="button" className="checkout-button" onClick={checkout} disabled={checkoutLoading || loadingQuote || (isUpgrade && !quote)}>
               {checkoutLoading ? "Opening secure checkout…" : !user ? "Continue to login" : isUpgrade ? (total > 0 ? "Continue to payment" : "Apply upgrade") : "Continue to checkout"}
