@@ -110,9 +110,6 @@ export default function CartPage() {
 
   const isNewSubscription = !!user && !isUpgrade;
 
-  // Existing paid subscriptions use the upgrade flow. New subscriptions use
-  // normal checkout unless the account has credit, in which case the redeem
-  // checkout endpoint is used to apply that credit before charging Paystack.
   useEffect(() => {
     if (!user || !isUpgrade) {
       setQuote(null);
@@ -170,7 +167,6 @@ export default function CartPage() {
 
   const upgradeTotal = quote?.upgrade_amount ?? listPrice;
   const newCheckoutTotal = voucherQuote?.amount_due ?? listPrice;
-  const credit = quote?.credit_applied ?? 0;
   const checkoutTotal = isUpgrade ? upgradeTotal : newCheckoutTotal;
 
   const applyVoucher = async () => {
@@ -205,17 +201,12 @@ export default function CartPage() {
       let result;
 
       if (isUpgrade) {
-        // Upgrade flow supports voucher_code directly. The backend combines
-        // unused subscription value + account credit + voucher credit and only
-        // creates a Paystack transaction when a balance remains.
         result = await upgradeSubscription(
           planKey,
           duration,
           voucher?.type === "voucher" ? coupon.trim() : undefined,
         );
       } else if (voucher?.type === "subscription") {
-        // Subscription redeem codes are not payment vouchers. Redeem them
-        // directly; the backend creates the subscription immediately.
         const redeemed = await redeemCode(coupon.trim());
         if (redeemed.success) {
           router.push("/dashboard");
@@ -223,18 +214,21 @@ export default function CartPage() {
         }
         throw new ApiError("Unable to redeem this subscription code.", 400);
       } else if (voucher?.type === "voucher") {
-        // A voucher code becomes account credit first. The dedicated redeem
-        // checkout then applies that credit and charges only any remainder.
         await redeemCode(coupon.trim());
         result = await voucherCheckout(planKey, duration);
       } else if ((voucherQuote?.credit_applied ?? 0) > 0) {
-        // Existing account credit: use redeem checkout instead of normal
-        // subscription checkout so the credit is atomically applied by the
-        // backend.
         result = await voucherCheckout(planKey, duration);
       } else {
-        // No credit and no voucher: standard Paystack subscription checkout.
         result = await subscribeToPlan(planKey, duration);
+      }
+
+      // A fully credit-covered checkout is already completed by the backend.
+      // It returns a local reference for auditing, not a Paystack transaction.
+      // Do not send that reference to either payment verifier: Paystack will
+      // correctly report "transaction not found" because no transaction exists.
+      if (result.status === "success" && result.payment_method === "voucher_credit") {
+        router.push("/dashboard");
+        return;
       }
 
       if (result.status === "payment_required" && result.authorization_url) {
@@ -248,7 +242,8 @@ export default function CartPage() {
       }
 
       if (result.reference) {
-        router.push(`/payment/success?reference=${encodeURIComponent(result.reference)}`);
+        const flow = isUpgrade ? "paystack" : "redeem";
+        router.push(`/payment/success?reference=${encodeURIComponent(result.reference)}&flow=${flow}`);
         return;
       }
 
@@ -436,56 +431,33 @@ export default function CartPage() {
               </p>
             )}
 
-            {user && isRecurringSubscription && !loadingSubscription && (
-              <section className="cart-payment-method" aria-label="Subscription payment method">
-                <div className="cart-payment-method-header">
-                  <div>
-                    <span className="cart-payment-eyebrow">PAYMENT METHOD</span>
-                    <h3>Subscription card</h3>
-                  </div>
-                  <IonIcon icon={cardOutline} aria-hidden="true" />
-                </div>
-                <div className="cart-payment-method-body">
-                  <div className="cart-payment-card-icon" aria-hidden="true">
-                    <IonIcon icon={cardOutline} />
-                  </div>
-                  <div className="cart-payment-details">
-                    <strong>{hasCard ? paymentName : "No card added"}</strong>
-                    <span>{hasCard ? `•••• ${paymentDetails?.last4}` : "Add a card for future recurring payments."}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className="cart-payment-action"
-                    onClick={() => router.push("/dashboard/subs-manage")}
-                  >
-                    {hasCard ? "Change" : "Add card"}
-                  </button>
-                </div>
-              </section>
+            {user && isRecurringSubscription && (
+              <div className="payment-method-row">
+                <IonIcon icon={cardOutline} aria-hidden="true" />
+                <span>{hasCard ? `${paymentName} •••• ${paymentDetails?.last4}` : "Saved payment method"}</span>
+              </div>
             )}
 
             <button
               type="button"
               className="checkout-button"
               onClick={checkout}
-              disabled={checkoutLoading || loadingQuote || (isUpgrade && !quote)}
+              disabled={checkoutLoading || loadingQuote || (isUpgrade && !quote) || (!isUpgrade && !voucherQuote)}
             >
               {checkoutLoading
-                ? "Opening secure checkout…"
+                ? "Processing…"
                 : !user
-                ? "Continue to login"
-                : isUpgrade
-                ? checkoutTotal > 0
-                  ? "Continue to payment"
-                  : "Apply upgrade"
-                : voucher?.type === "subscription"
-                ? "Redeem subscription"
-                : checkoutTotal > 0
-                ? "Continue to checkout"
-                : "Use credit & subscribe"}
-              <span>→</span>
+                  ? "Continue to login"
+                  : isUpgrade
+                    ? checkoutTotal > 0
+                      ? "Continue to payment"
+                      : "Apply upgrade"
+                    : voucher?.type === "subscription"
+                      ? "Redeem subscription"
+                      : checkoutTotal > 0
+                        ? "Continue to checkout"
+                        : "Use credit & subscribe"}
             </button>
-            <p className="secure-note">Secure payment · Cancel anytime</p>
           </aside>
         </div>
       </div>
