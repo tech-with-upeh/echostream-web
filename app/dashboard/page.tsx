@@ -103,6 +103,7 @@ function humanize(value: string | null | undefined) {
     : "";
 }
 function formatSubscriptionStatus(status: string | null | undefined) {
+  console.log("sub: ",status);
   return humanize("" + status) || "Unknown";
 }
 function normalizedSubscriptionStatus(status: string | null | undefined) {
@@ -286,6 +287,17 @@ export default function DashboardPage() {
               className="dashboard-action-card"
               disabled={disablePaymentActions}
               aria-disabled={disablePaymentActions}
+             onClick={() => {
+  const url = subscription?.management_link;
+  
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  } else {
+    // Optional: Add user feedback here (e.g., toast notification or alert)
+    console.error("Management link is not available.");
+  }
+}}
+
             >
               <IonIcon icon={cardOutline} aria-hidden="true" />
               <span>Update card</span>
