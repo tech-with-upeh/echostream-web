@@ -236,7 +236,7 @@ export default function Home() {
             <div className="stream-video-footer">
               <p>Interested to see more?</p>
               <a href="#features" className="find-out-more">
-                Find out more <span>↗</span>
+                Find out more
               </a>
             </div>
           </div>

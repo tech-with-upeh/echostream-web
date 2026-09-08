@@ -25,15 +25,32 @@ export default function PaymentSuccessPage() {
   }, [reference]);
 
   return (
-    <main className="cart-page">
-      <div className="cart-shell">
-        <section className="summary-card flex flex-col justify-center items-center" style={{ maxWidth: 620, margin: "80px auto", textAlign: "center" }}>
-          <img className="h-1/3 w-1/3 self-center content-center" src="/success.svg" alt="Successful Payment" />
-          <h1>{error ? "Payment needs attention" : ""}</h1>
-          <p style={{ marginTop: 16 }}>{error || status}</p>
-          <Link href="/dashboard" className="checkout-button" style={{ display: "inline-flex", marginTop: 28 }}>Go to dashboard <span>→</span></Link>
-        </section>
-      </div>
+    <main className="min-h-screen flex items-center justify-center px-6 py-24">
+      <section className="w-full max-w-md flex flex-col items-center text-center">
+        <img
+          src="/success.svg"
+          alt="Successful Payment"
+          className="w-24 h-24 mb-8"
+        />
+
+        {error ? (
+          <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+            Payment needs attention
+          </h1>
+        ) : null}
+
+        <p className="mt-3 text-base text-neutral-500 leading-relaxed">
+          {error || status}
+        </p>
+
+        <Link
+          href="/dashboard"
+          className="mt-10 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-sm font-medium tracking-wide hover:bg-neutral-800 transition-colors duration-200"
+        >
+          Go to dashboard
+          <span className="translate-y-[0.5px]">→</span>
+        </Link>
+      </section>
     </main>
   );
 }

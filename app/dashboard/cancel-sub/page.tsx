@@ -102,7 +102,6 @@ export default function CancelSubscriptionPage() {
 
   return (
     <main className="cancel-sub-page">
-      <DashboardNavbar />
       <section className="cancel-sub-content">
         <button
           type="button"
@@ -166,7 +165,10 @@ export default function CancelSubscriptionPage() {
               >
                 Back to account
               </button>
-              <button type="button" className="cancel-sub-confirm-btn">
+              <button type="button" className="cancel-sub-confirm-btn" onClick={() => {
+                const url = subscription?.management_link;
+                if (url) window.open(url, "_blank", "noopener,noreferrer");
+              }}>
                 Continue to cancel
               </button>
             </div>
