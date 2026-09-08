@@ -10,20 +10,20 @@ import "./pricing.css";
 
 type Plan = { name: string; price: string; description: string; features: string[]; button: string; popular?: boolean };
 const PLANS: Plan[] = [
-  { name: "Starter", price: "$0", description: "Essential tools for individual creators to begin their journey.", features: ["Basic AI generation (100 credits/mo)", "Standard export resolution", "Community support access"], button: "Get Started" },
-  { name: "Essential", price: "$9.99", description: "The definitive toolkit for professional creators and daily users.", features: ["Unlimited basic generations", "High-fidelity 4K exports", "Priority render queue", "Custom style training (up to 5)"], button: "Upgrade Now", popular: true },
-  { name: "Pro", price: "$19.99", description: "Uncompromised power for studios and enterprise-scale workflows.", features: ["Everything in Essential", "API access & documentation", "Unlimited custom style training", "Dedicated account manager"], button: "Upgrade Now" },
+  { name: "Starter", price: "₦0", description: "Essential tools for individual creators to begin their journey.", features: ["Basic AI generation (100 credits/mo)", "Standard export resolution", "Community support access"], button: "Get Started" },
+  { name: "Essential", price: "₦1,600", description: "The definitive toolkit for professional creators and daily users.", features: ["Unlimited basic generations", "High-fidelity 4K exports", "Priority render queue", "Custom style training (up to 5)"], button: "Upgrade Now", popular: true },
+  { name: "Pro", price: "₦3,200", description: "Uncompromised power for studios and enterprise-scale workflows.", features: ["Everything in Essential", "API access & documentation", "Unlimited custom style training", "Dedicated account manager"], button: "Upgrade Now" },
 ];
 const PLAN_RANK: Record<string, number> = { starter: 0, essential: 1, pro: 2 };
 
 function getCta(planName: string, user: CurrentUser | null) {
-  if (!user) return { label: "Get Started", href: "/login" };
+  if (!user) return { label: "Get Started", href: "/cart?plan=" + planName.toLowerCase() };
   const currentPlan = user.plan.toLowerCase();
   const targetPlan = planName.toLowerCase();
   const currentRank = PLAN_RANK[currentPlan] ?? 0;
   const targetRank = PLAN_RANK[targetPlan] ?? 0;
   if (targetPlan === currentPlan) return targetPlan === "starter" ? { label: "Current plan", href: "/dashboard" } : { label: "Cancel", href: "/cancel-sub" };
-  return targetRank > currentRank ? { label: "Upgrade", href: "/dashboard/subs-manage" } : { label: "Downgrade", href: "/dashboard/subs-manage" };
+  return targetRank > currentRank ? { label: "Upgrade", href: `/cart?plan=${targetPlan}` } : { label: "Downgrade", href: "/dashboard/subs-manage" };
 }
 
 export default function PricingPage() {
@@ -36,9 +36,6 @@ export default function PricingPage() {
       .then((data) => { cacheCurrentUser(data); if (mounted) setUser(data); })
       .catch(() => {
         if (mounted && !getSessionUser()) setUser(null);
-        localStorage.removeItem("echostream_access_token");
-        localStorage.removeItem("echostream_refresh_token");
-        localStorage.removeItem("echostream_token_type");
       })
       .finally(() => { if (mounted) setSessionChecked(true); });
     return () => { mounted = false; };
