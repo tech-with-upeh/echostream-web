@@ -48,6 +48,39 @@ export type SubscriptionCheckoutResponse = {
   reference: string;
   plan: string;
   interval: string;
+  status?: string;
+  amount_due?: number;
+  credit_applied?: number;
+};
+export type VoucherCheckoutQuote = {
+  plan: string;
+  interval: string;
+  price: number;
+  credit_available: number;
+  credit_applied: number;
+  amount_due: number;
+  currency: string;
+};
+export type RedeemValidation = {
+  valid: boolean;
+  type: "voucher" | "subscription";
+  plan: string | null;
+  duration_days: number | null;
+  credit: number;
+  expires_at: string | null;
+};
+export type RedeemResponse = {
+  success: boolean;
+  type: "voucher" | "subscription";
+  credit_added?: number;
+  credit_balance?: number;
+  plan?: string;
+  starts_at?: string;
+  expires_at?: string;
+};
+export type CreditBalance = {
+  balance: number;
+  currency: string;
 };
 export type UpgradeQuote = {
   current_plan: string;
@@ -63,6 +96,9 @@ export type UpgradeQuote = {
   total_days: number;
   remaining_days: number;
   unused_value: number;
+  account_credit_available?: number;
+  account_credit_applied?: number;
+  voucher_credit_applied?: number;
   credit_applied: number;
   upgrade_amount: number;
   credit_remaining: number;
@@ -70,7 +106,7 @@ export type UpgradeQuote = {
 };
 export type UpgradeResponse = {
   status: string;
-  payment_method?: "one_time" | "recurring";
+  payment_method?: "one_time" | "recurring" | "voucher_credit";
   payment_channel?: string;
   current_plan?: string;
   current_interval?: string;
@@ -151,12 +187,8 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
-  if (!BACKEND_URL)
-    throw new Error("EchoStream backend URL is not configured.");
+export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  if (!BACKEND_URL) throw new Error("EchoStream backend URL is not configured.");
   let response: Response;
   try {
     response = await fetch(`${BACKEND_URL}${path}`, {
@@ -167,14 +199,9 @@ export async function apiFetch<T>(
     throw new Error("Unable to connect to EchoStream. Please try again.");
   }
   const contentType = response.headers.get("content-type") ?? "";
-  const data = contentType.includes("application/json")
-    ? await response.json()
-    : null;
+  const data = contentType.includes("application/json") ? await response.json() : null;
   if (!response.ok) {
-    const message =
-      typeof data?.detail === "string"
-        ? data.detail
-        : "Something went wrong. Please try again.";
+    const message = typeof data?.detail === "string" ? data.detail : "Something went wrong. Please try again.";
     throw new ApiError(message, response.status);
   }
   return data as T;
@@ -185,7 +212,6 @@ let refreshPromise: Promise<string> | null = null;
 async function refreshAccessToken(): Promise<string> {
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
   if (!refreshToken) throw new ApiError("Authentication required.", 401);
-
   if (!refreshPromise) {
     refreshPromise = apiFetch<LoginResponse>("/refresh", {
       method: "POST",
@@ -197,11 +223,8 @@ async function refreshAccessToken(): Promise<string> {
         localStorage.setItem(TOKEN_TYPE_KEY, tokens.token_type);
         return tokens.access_token;
       })
-      .finally(() => {
-        refreshPromise = null;
-      });
+      .finally(() => { refreshPromise = null; });
   }
-
   return refreshPromise;
 }
 
@@ -217,26 +240,20 @@ function clearAuthentication() {
 async function authenticatedFetch<T>(path: string, options: RequestInit = {}) {
   let accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
   if (!accessToken) throw new ApiError("Authentication required.", 401);
-
-  const request = () =>
-    apiFetch<T>(path, {
-      ...options,
-      headers: { Authorization: `Bearer ${accessToken}`, ...options.headers },
-    });
-
+  const request = () => apiFetch<T>(path, {
+    ...options,
+    headers: { Authorization: `Bearer ${accessToken}`, ...options.headers },
+  });
   try {
     return await request();
   } catch (error) {
     if (!(error instanceof ApiError) || error.status !== 401) throw error;
-
     try {
       accessToken = await refreshAccessToken();
       return await request();
     } catch (refreshError) {
       clearAuthentication();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
+      if (typeof window !== "undefined") window.location.href = "/login";
       if (refreshError instanceof ApiError) throw refreshError;
       throw new ApiError("Your session has expired. Please log in again.", 401);
     }
@@ -246,55 +263,29 @@ function readSession<T>(key: string) {
   try {
     const value = sessionStorage.getItem(key);
     return value ? (JSON.parse(value) as T) : null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 function writeSession<T>(key: string, value: T) {
-  try {
-    sessionStorage.setItem(key, JSON.stringify(value));
-  } catch {}
+  try { sessionStorage.setItem(key, JSON.stringify(value)); } catch {}
 }
-export function getSessionUser() {
-  return readSession<CurrentUser>(SESSION_USER_KEY);
-}
-export function getSessionSubscription() {
-  return readSession<SubscriptionManagement>(SESSION_SUBSCRIPTION_KEY);
-}
-export function cacheCurrentUser(user: CurrentUser) {
-  writeSession(SESSION_USER_KEY, user);
-}
-export function cacheSubscriptionManagement(
-  subscription: SubscriptionManagement,
-) {
-  writeSession(SESSION_SUBSCRIPTION_KEY, subscription);
-}
+export function getSessionUser() { return readSession<CurrentUser>(SESSION_USER_KEY); }
+export function getSessionSubscription() { return readSession<SubscriptionManagement>(SESSION_SUBSCRIPTION_KEY); }
+export function cacheCurrentUser(user: CurrentUser) { writeSession(SESSION_USER_KEY, user); }
+export function cacheSubscriptionManagement(subscription: SubscriptionManagement) { writeSession(SESSION_SUBSCRIPTION_KEY, subscription); }
 export function clearSessionData() {
   try {
     sessionStorage.removeItem(SESSION_USER_KEY);
     sessionStorage.removeItem(SESSION_SUBSCRIPTION_KEY);
   } catch {}
 }
-export function getCurrentUser() {
-  return authenticatedFetch<CurrentUser>("/users/me");
-}
-export function getSubscriptionManagement() {
-  return authenticatedFetch<SubscriptionManagement>("/payments/manage");
-}
+export function getCurrentUser() { return authenticatedFetch<CurrentUser>("/users/me"); }
+export function getSubscriptionManagement() { return authenticatedFetch<SubscriptionManagement>("/payments/manage"); }
 export function getPaymentHistory(page = 1, perPage = 20, sort = "newest") {
-  const params = new URLSearchParams({
-    page: String(page),
-    per_page: String(perPage),
-    sort,
-  });
-  return authenticatedFetch<PaymentHistoryResponse>(
-    `/payments/history?${params.toString()}`,
-  );
+  const params = new URLSearchParams({ page: String(page), per_page: String(perPage), sort });
+  return authenticatedFetch<PaymentHistoryResponse>(`/payments/history?${params.toString()}`);
 }
 export function getPaymentReceipt(paymentId: string) {
-  return authenticatedFetch<PaymentReceiptResponse>(
-    `/payments/history/${encodeURIComponent(paymentId)}/receipt`,
-  );
+  return authenticatedFetch<PaymentReceiptResponse>(`/payments/history/${encodeURIComponent(paymentId)}/receipt`);
 }
 export function subscribeToPlan(plan: string, interval = "month") {
   return authenticatedFetch<SubscriptionCheckoutResponse>(
@@ -302,38 +293,45 @@ export function subscribeToPlan(plan: string, interval = "month") {
     { method: "POST" },
   );
 }
-export function getUpgradeQuote(plan: string, interval: string) {
-  return authenticatedFetch<UpgradeQuote>(
-    `/payments/upgrade/quote?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
+export function getVoucherCheckoutQuote(plan: string, interval: string) {
+  return authenticatedFetch<VoucherCheckoutQuote>(
+    `/redeem/checkout/quote?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
+  );
+}
+export function voucherCheckout(plan: string, interval: string) {
+  return authenticatedFetch<SubscriptionCheckoutResponse>(
+    `/redeem/checkout?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
     { method: "POST" },
   );
 }
-export function upgradeSubscription(plan: string, interval: string) {
-  return authenticatedFetch<UpgradeResponse>(
-    `/payments/upgrade?plan=${encodeURIComponent(plan)}&interval=${encodeURIComponent(interval)}`,
-    { method: "POST" },
-  );
+export function validateRedeemCode(code: string) {
+  return authenticatedFetch<RedeemValidation>(`/redeem/validate?code=${encodeURIComponent(code)}`, { method: "POST" });
+}
+export function redeemCode(code: string) {
+  return authenticatedFetch<RedeemResponse>(`/redeem?code=${encodeURIComponent(code)}`, { method: "POST" });
+}
+export function getCreditBalance() {
+  return authenticatedFetch<CreditBalance>("/redeem/balance");
+}
+export function getUpgradeQuote(plan: string, interval: string, voucherCode?: string) {
+  const params = new URLSearchParams({ plan, interval });
+  if (voucherCode) params.set("voucher_code", voucherCode);
+  return authenticatedFetch<UpgradeQuote>(`/payments/upgrade/quote?${params.toString()}`, { method: "POST" });
+}
+export function upgradeSubscription(plan: string, interval: string, voucherCode?: string) {
+  const params = new URLSearchParams({ plan, interval });
+  if (voucherCode) params.set("voucher_code", voucherCode);
+  return authenticatedFetch<UpgradeResponse>(`/payments/upgrade?${params.toString()}`, { method: "POST" });
 }
 export function verifyPayment(reference: string) {
-  return authenticatedFetch<UpgradeResponse>(
-    `/payments/verify/${encodeURIComponent(reference)}`,
-  );
+  return authenticatedFetch<UpgradeResponse>(`/payments/verify/${encodeURIComponent(reference)}`);
 }
 export function login(email: string, password: string) {
-  return apiFetch<LoginResponse>("/login", {
-    method: "POST",
-    body: JSON.stringify({ email, password }),
-  });
+  return apiFetch<LoginResponse>("/login", { method: "POST", body: JSON.stringify({ email, password }) });
 }
 export function googleLogin(idToken: string) {
-  return apiFetch<LoginResponse>("/auth/google", {
-    method: "POST",
-    body: JSON.stringify({ id_token: idToken }),
-  });
+  return apiFetch<LoginResponse>("/auth/google", { method: "POST", body: JSON.stringify({ id_token: idToken }) });
 }
 export function logout(accessToken: string) {
-  return apiFetch<unknown>("/logout", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  return apiFetch<unknown>("/logout", { method: "POST", headers: { Authorization: `Bearer ${accessToken}` } });
 }
