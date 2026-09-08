@@ -69,8 +69,8 @@ export default function DashboardNavbar() {
             </button>
             {plansOpen && (
               <div className="dashboard-menu dashboard-plans-menu">
-                <Link href="/plans/essential" onClick={() => setPlansOpen(false)}><strong>Essential</strong><span>More power for your streams</span></Link>
-                <Link href="/plans/pro" onClick={() => setPlansOpen(false)}><strong>Pro</strong><span>Advanced voices and features</span></Link>
+                <Link href="/pricing" onClick={() => setPlansOpen(false)}><strong>Essential</strong><span>More power for your streams</span></Link>
+                <Link href="/pricing" onClick={() => setPlansOpen(false)}><strong>Pro</strong><span>Advanced voices and features</span></Link>
               </div>
             )}
           </div>
@@ -90,7 +90,7 @@ export default function DashboardNavbar() {
 
             {profileOpen && (
               <div className="dashboard-menu dashboard-profile-menu">
-                <Link href="/account" onClick={() => setProfileOpen(false)}>Account</Link>
+                <Link href="/dashboard/personal-info" onClick={() => setProfileOpen(false)}>Account</Link>
                 <button type="button" onClick={handleLogout} disabled={loggingOut}>{loggingOut ? "Logging out..." : "Log out"}</button>
               </div>
             )}

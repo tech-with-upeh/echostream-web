@@ -118,7 +118,6 @@ export default function SubscriptionManagePage() {
 
   return (
     <main className="subs-manage-page">
-      <DashboardNavbar />
       <section className="subs-manage-content">
         <button
           type="button"
