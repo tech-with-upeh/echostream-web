@@ -21,11 +21,10 @@ const processSteps = [
 ];
 
 const testimonials = [
-  { name: "Alex Morgan", text: "EchoStream completely changed how my community interacts with my streams. The voices feel natural, and the whole experience stays out of the way while making every message feel noticed." },
-  { name: "Jordan Lee", text: "It makes the chat feel alive. My viewers love hearing their messages come through, and setting everything up was surprisingly simple." },
+  { name: "Alex Morgan", text: "EchoStream completely changed how my community interacts with my streams. The voices feel natural, and the whole experience stays out of the way while making every message feel noticed.", audio: "/testimony/audio.mp3" },
+  { name: "Jordan Lee", text: "It makes the chat feel alive. My viewers love hearing their messages come through, and setting everything up was surprisingly simple.", audio: "/testimony/audio2.mp3" },
 ];
 
-const TESTIMONIAL_AUDIO = "/testimony/audio.mp3";
 const FALLBACK_WAVEFORM = [18,31,23,44,62,38,54,72,48,31,58,78,49,65,37,52,70,45,29,56,39,68,51,33,60,76,42,25,48,64,35,55,73,46,28,42,61,34,51,69];
 
 function formatTime(seconds: number) {
@@ -37,16 +36,15 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const [audioDuration, setAudioDuration] = useState(0);
-  const [audioWaveform, setAudioWaveform] = useState(FALLBACK_WAVEFORM);
+  const [audioInfo, setAudioInfo] = useState(testimonials.map(() => ({ duration: 0, waveform: FALLBACK_WAVEFORM })));
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio(TESTIMONIAL_AUDIO);
+    const audio = new Audio();
     audio.preload = "metadata";
     audioRef.current = audio;
 
-    const handleLoadedMetadata = () => setAudioDuration(audio.duration);
+    const handleLoadedMetadata = () => setCurrentTime(audio.currentTime);
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
     const handleEnded = () => {
       setCurrentTime(0);
@@ -59,34 +57,38 @@ export default function Home() {
     audio.addEventListener("ended", handleEnded);
 
     let cancelled = false;
-    fetch(TESTIMONIAL_AUDIO)
-      .then((response) => {
-        if (!response.ok) throw new Error("Unable to load testimonial audio");
-        return response.arrayBuffer();
-      })
-      .then(async (buffer) => {
-        const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-        if (!AudioContextClass) return;
-        const context = new AudioContextClass();
+
+    Promise.all(
+      testimonials.map(async (testimonial, index) => {
         try {
-          const decoded = await context.decodeAudioData(buffer);
-          if (cancelled) return;
-          const channel = decoded.getChannelData(0);
-          const bars = 40;
-          const samplesPerBar = Math.max(1, Math.floor(channel.length / bars));
-          const peaks = Array.from({ length: bars }, (_, index) => {
-            const start = index * samplesPerBar;
-            const end = Math.min(channel.length, start + samplesPerBar);
-            let peak = 0;
-            for (let sample = start; sample < end; sample += 1) peak = Math.max(peak, Math.abs(channel[sample]));
-            return Math.max(12, Math.min(100, Math.round(peak * 100)));
-          });
-          setAudioWaveform(peaks);
-        } finally {
-          await context.close();
+          const response = await fetch(testimonial.audio);
+          if (!response.ok) throw new Error("Unable to load testimonial audio");
+          const buffer = await response.arrayBuffer();
+          const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+          if (!AudioContextClass) return;
+          const context = new AudioContextClass();
+          try {
+            const decoded = await context.decodeAudioData(buffer);
+            if (cancelled) return;
+            const channel = decoded.getChannelData(0);
+            const bars = 40;
+            const samplesPerBar = Math.max(1, Math.floor(channel.length / bars));
+            const peaks = Array.from({ length: bars }, (_, barIndex) => {
+              const start = barIndex * samplesPerBar;
+              const end = Math.min(channel.length, start + samplesPerBar);
+              let peak = 0;
+              for (let sample = start; sample < end; sample += 1) peak = Math.max(peak, Math.abs(channel[sample]));
+              return Math.max(12, Math.min(100, Math.round(peak * 100)));
+            });
+            setAudioInfo((current) => current.map((item, itemIndex) => itemIndex === index ? { duration: decoded.duration, waveform: peaks } : item));
+          } finally {
+            await context.close();
+          }
+        } catch {
+          // Keep the fallback waveform if this audio cannot be decoded.
         }
-      })
-      .catch(() => {});
+      }),
+    );
 
     return () => {
       cancelled = true;
@@ -101,15 +103,21 @@ export default function Home() {
   const toggleTestimonialAudio = async (index: number) => {
     const audio = audioRef.current;
     if (!audio) return;
+
     if (activeTestimonial === index && !audio.paused) {
       audio.pause();
       return;
     }
+
     if (activeTestimonial !== index) {
+      audio.pause();
+      audio.src = testimonials[index].audio;
+      audio.load();
       audio.currentTime = 0;
       setCurrentTime(0);
       setActiveTestimonial(index);
     }
+
     try {
       await audio.play();
     } catch {
@@ -176,7 +184,9 @@ export default function Home() {
         <div className="testimonials-inner">
           {testimonials.map((testimonial, index) => {
             const isActive = activeTestimonial === index;
-            const progress = audioDuration > 0 && isActive ? currentTime / audioDuration : 0;
+            const duration = audioInfo[index]?.duration ?? 0;
+            const waveform = audioInfo[index]?.waveform ?? FALLBACK_WAVEFORM;
+            const progress = duration > 0 && isActive ? currentTime / duration : 0;
             return (
               <article className={`testimonial testimonial-${index === 0 ? "one" : "two"}`} key={testimonial.name}>
                 <span className="testimonial-name">{testimonial.name}</span>
@@ -186,12 +196,12 @@ export default function Home() {
                     <IonIcon icon={isActive ? pause : play} aria-hidden="true" />
                   </button>
                   <div className="testimonial-waveform" aria-hidden="true">
-                    {audioWaveform.map((height, barIndex) => {
-                      const played = isActive && (barIndex + 1) / audioWaveform.length <= progress;
+                    {waveform.map((height, barIndex) => {
+                      const played = isActive && (barIndex + 1) / waveform.length <= progress;
                       return <span key={`${testimonial.name}-${barIndex}`} className={played ? "is-played" : ""} style={{ height: `${height}%` }} />;
                     })}
                   </div>
-                  <span className="testimonial-duration">{formatTime(isActive ? currentTime : audioDuration)}</span>
+                  <span className="testimonial-duration">{formatTime(isActive ? currentTime : duration)}</span>
                 </div>
               </article>
             );
