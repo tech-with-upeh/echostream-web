@@ -304,6 +304,11 @@ export function voucherCheckout(plan: string, interval: string) {
     { method: "POST" },
   );
 }
+export function verifyVoucherCheckout(reference: string) {
+  return authenticatedFetch<SubscriptionCheckoutResponse>(
+    `/redeem/checkout/verify/${encodeURIComponent(reference)}`,
+  );
+}
 export function validateRedeemCode(code: string) {
   return authenticatedFetch<RedeemValidation>(`/redeem/validate?code=${encodeURIComponent(code)}`, { method: "POST" });
 }
