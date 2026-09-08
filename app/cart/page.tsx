@@ -1,46 +1,136 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { IonIcon } from "@ionic/react";
 import { checkmark } from "ionicons/icons";
+import {
+  ApiError,
+  CurrentUser,
+  getCurrentUser,
+  getSessionUser,
+  getUpgradeQuote,
+  subscribeToPlan,
+  upgradeSubscription,
+} from "@/lib/api";
 import "../pricing/pricing.css";
 
 const PLANS = {
   essential: { name: "Essential", monthly: 1600, yearly: 16000 },
   pro: { name: "Pro", monthly: 3200, yearly: 32000 },
-};
+} as const;
+
+type Duration = "month" | "year";
+
+function money(value: number) {
+  return `₦${Math.round(value).toLocaleString()}`;
+}
 
 export default function CartPage() {
-  const [planKey] = useState<keyof typeof PLANS>("essential");
-  const [duration, setDuration] = useState<"1" | "12">("1");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedPlan = (searchParams.get("plan") || "essential").toLowerCase() as keyof typeof PLANS;
+  const initialInterval: Duration = searchParams.get("interval") === "year" ? "year" : "month";
+
+  const [user, setUser] = useState<CurrentUser | null>(() => getSessionUser());
+  const [planKey, setPlanKey] = useState<keyof typeof PLANS>(PLANS[requestedPlan] ? requestedPlan : "essential");
+  const [duration, setDuration] = useState<Duration>(initialInterval);
+  const [quote, setQuote] = useState<Awaited<ReturnType<typeof getUpgradeQuote>> | null>(null);
+  const [loadingUser, setLoadingUser] = useState(!getSessionUser());
+  const [loadingQuote, setLoadingQuote] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [error, setError] = useState("");
   const [couponOpen, setCouponOpen] = useState(false);
   const [coupon, setCoupon] = useState("");
 
+  useEffect(() => {
+    let mounted = true;
+    getCurrentUser()
+      .then((data) => mounted && setUser(data))
+      .catch(() => mounted && setUser(getSessionUser()))
+      .finally(() => mounted && setLoadingUser(false));
+    return () => { mounted = false; };
+  }, []);
+
+  const currentPlan = user?.plan?.toLowerCase() || "starter";
+  const isUpgrade = !!user && currentPlan !== "starter" &&
+    (planKey === "pro" || planKey === "essential") &&
+    ({ starter: 0, essential: 1, pro: 2 }[planKey] > ({ starter: 0, essential: 1, pro: 2 }[currentPlan] ?? 0));
+
+  useEffect(() => {
+    if (!user || !isUpgrade) {
+      setQuote(null);
+      return;
+    }
+    let mounted = true;
+    setLoadingQuote(true);
+    setError("");
+    getUpgradeQuote(planKey, duration)
+      .then((data) => mounted && setQuote(data))
+      .catch((err) => mounted && setError(err instanceof ApiError ? err.message : "Unable to calculate the upgrade."))
+      .finally(() => mounted && setLoadingQuote(false));
+    return () => { mounted = false; };
+  }, [user, planKey, duration, isUpgrade]);
+
   const plan = PLANS[planKey];
-  const price = duration === "1" ? plan.monthly : plan.yearly;
+  const listPrice = duration === "month" ? plan.monthly : plan.yearly;
   const monthlyEquivalent = Math.round(plan.yearly / 12);
-  const savings = duration === "12" ? plan.monthly * 12 - plan.yearly : 0;
+  const annualSavings = plan.monthly * 12 - plan.yearly;
+  const total = quote?.upgrade_amount ?? listPrice;
+  const credit = quote?.credit_applied ?? 0;
+
+  const checkout = async () => {
+    setError("");
+    if (!user) {
+      router.push(`/login?next=${encodeURIComponent(`/cart?plan=${planKey}&interval=${duration}`)}`);
+      return;
+    }
+    setCheckoutLoading(true);
+    try {
+      const result = isUpgrade
+        ? await upgradeSubscription(planKey, duration)
+        : await subscribeToPlan(planKey, duration);
+
+      if (result.status === "payment_required" && result.authorization_url) {
+        window.location.assign(result.authorization_url);
+        return;
+      }
+      if (result.authorization_url) {
+        window.location.assign(result.authorization_url);
+        return;
+      }
+      if (result.reference) {
+        router.push(`/payment/success?reference=${encodeURIComponent(result.reference)}`);
+        return;
+      }
+      router.push("/dashboard");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return;
+      setError(err instanceof ApiError ? err.message : "Unable to start payment. Please try again.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  if (loadingUser) {
+    return <main className="cart-page"><div className="cart-shell"><div className="cart-loading">Loading checkout…</div></div></main>;
+  }
 
   return (
     <main className="cart-page">
       <div className="cart-shell">
-        
-
         <header className="cart-header">
-         
           <h1>Your cart</h1>
           <span>Review your plan and choose your billing duration.</span>
         </header>
 
+        {error && <div className="cart-error" role="alert">{error}</div>}
+
         <div className="cart-grid">
           <section className="cart-card">
             <div className="cart-card-heading">
-              <div>
-                <h2>{plan.name}</h2>
-                <p className="cart-plan-label">EchoStream Plan</p>
-              </div>
+              <div><h2>{plan.name}</h2><p className="cart-plan-label">EchoStream Plan</p></div>
               <Image src="/logo.svg" alt="EchoStream" width={48} height={48} />
             </div>
 
@@ -48,97 +138,56 @@ export default function CartPage() {
               <div className="duration-title">
                 <span>Duration / Period</span>
                 <div className="duration-price-info">
-                  {savings > 0 && <small>Save ₦{savings.toLocaleString()}</small>}
-                  <strong>₦{price.toLocaleString()}</strong>
+                  {duration === "year" && <small>Save {money(annualSavings)}</small>}
+                  <strong>{money(listPrice)}</strong>
                 </div>
               </div>
-
               <div className="duration-select-wrap">
                 <IonIcon className="duration-select-check" icon={checkmark} aria-hidden="true" />
-                <select
-                  className="duration-select"
-                  value={duration}
-                  onChange={(event) => setDuration(event.target.value as "1" | "12")}
-                  aria-label="Choose subscription duration"
-                >
-                  <option value="1">1 Month — ₦{plan.monthly.toLocaleString()}</option>
-                  <option value="12">12 Months — ₦{plan.yearly.toLocaleString()}</option>
+                <select className="duration-select" value={duration} onChange={(e) => setDuration(e.target.value as Duration)} aria-label="Choose subscription duration">
+                  <option value="month">1 Month — {money(plan.monthly)}</option>
+                  <option value="year">12 Months — {money(plan.yearly)}</option>
                 </select>
               </div>
             </div>
 
             <div className="duration-deal-divider" />
-
-            {duration === "1" && (
+            {duration === "month" && (
               <div className="duration-deal">
-                <p>
-                  Switch to a 24-month subscription for the <strong>biggest savings</strong>.
-                </p>
-                <button
-                  type="button"
-                  className="duration-deal-button"
-                  onClick={() => setDuration("12")}
-                >
-                  Get deal
-                </button>
+                <p>Switch to annual billing for the <strong>biggest savings</strong>.</p>
+                <button type="button" className="duration-deal-button" onClick={() => setDuration("year")}>Get deal</button>
+              </div>
+            )}
+
+            {isUpgrade && (
+              <div className="cart-credit-box">
+                {loadingQuote ? "Calculating your remaining subscription credit…" : <>Unused subscription credit: <strong>{money(credit)}</strong></>}
               </div>
             )}
 
             <p className="billing-copy">
-              {duration === "12"
-                ? `Billed every 12 months at ₦${price.toLocaleString()}. Equivalent to ₦${monthlyEquivalent.toLocaleString()} per month.`
-                : `Billed every month at ₦${price.toLocaleString()}.`}
+              {duration === "year"
+                ? `Billed every 12 months at ${money(listPrice)}. Equivalent to ${money(monthlyEquivalent)} per month.`
+                : `Billed every month at ${money(listPrice)}.`}
             </p>
           </section>
 
           <aside className="summary-card">
             <h2>Order summary</h2>
-            <div className="summary-row">
-              <span>{plan.name} Plan</span>
-              <strong>₦{price.toLocaleString()}</strong>
-            </div>
-            <div className="summary-row">
-              <span>{duration === "1" ? "1 month" : "12 months"}</span>
-              <span>{duration === "12" ? "Annual" : "Monthly"}</span>
-            </div>
+            <div className="summary-row"><span>{plan.name} Plan</span><strong>{money(listPrice)}</strong></div>
+            <div className="summary-row"><span>{duration === "month" ? "1 month" : "12 months"}</span><span>{duration === "year" ? "Annual" : "Monthly"}</span></div>
             <div className="summary-divider" />
-            {savings > 0 && (
-              <div className="summary-row savings">
-                <span>Annual savings</span>
-                <strong>−₦{savings.toLocaleString()}</strong>
-              </div>
-            )}
-            <div className="summary-total">
-              <span>Total</span>
-              <strong>₦{price.toLocaleString()}</strong>
-            </div>
+            {isUpgrade && <div className="summary-row savings"><span>Unused credit</span><strong>−{money(credit)}</strong></div>}
+            {!isUpgrade && duration === "year" && <div className="summary-row savings"><span>Annual savings</span><strong>−{money(annualSavings)}</strong></div>}
+            <div className="summary-total"><span>{isUpgrade ? "Pay now" : "Total"}</span><strong>{loadingQuote ? "…" : money(total)}</strong></div>
 
-            <button
-              type="button"
-              className="coupon-link"
-              onClick={() => setCouponOpen((open) => !open)}
-              aria-expanded={couponOpen}
-            >
-              Use coupon code
+            <button type="button" className="coupon-link" onClick={() => setCouponOpen((open) => !open)} aria-expanded={couponOpen}>Use coupon code</button>
+            {couponOpen && <div className="coupon-input-wrap"><input type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="Enter coupon code" aria-label="Coupon code" autoFocus /><button type="button">Apply</button></div>}
+
+            <button type="button" className="checkout-button" onClick={checkout} disabled={checkoutLoading || loadingQuote || (isUpgrade && !quote)}>
+              {checkoutLoading ? "Opening secure checkout…" : !user ? "Continue to login" : isUpgrade ? (total > 0 ? "Continue to payment" : "Apply upgrade") : "Continue to checkout"}
+              <span>→</span>
             </button>
-
-            {couponOpen && (
-              <div className="coupon-input-wrap">
-                <input
-                  type="text"
-                  value={coupon}
-                  onChange={(event) => setCoupon(event.target.value)}
-                  placeholder="Enter coupon code"
-                  aria-label="Coupon code"
-                  autoFocus
-                />
-                <button type="button">Apply</button>
-              </div>
-            )}
-
-            <Link href="/login" className="checkout-button">
-              Continue to checkout <span>→</span>
-            </Link>
             <p className="secure-note">Secure payment · Cancel anytime</p>
           </aside>
         </div>
