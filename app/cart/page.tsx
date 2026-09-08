@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { IonIcon } from "@ionic/react";
 import { checkmark, cardOutline } from "ionicons/icons";
 import {
@@ -46,7 +46,7 @@ function humanize(value: string | null | undefined) {
     : "Card";
 }
 
-export default function CartPage() {
+function CartPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedPlan = (searchParams.get("plan") || "essential").toLowerCase() as keyof typeof PLANS;
@@ -226,12 +226,12 @@ export default function CartPage() {
       // It returns a local reference for auditing, not a Paystack transaction.
       // Do not send that reference to either payment verifier: Paystack will
       // correctly report "transaction not found" because no transaction exists.
-      if (result.status === "success" && result.payment_method === "voucher_credit") {
+      if ("payment_method" in result && "status" in result && result.status === "success" && result.payment_method === "voucher_credit") {
         router.push("/dashboard");
         return;
       }
 
-      if (result.status === "payment_required" && result.authorization_url) {
+      if ("status" in result && result.status === "payment_required" && result.authorization_url) {
         window.location.assign(result.authorization_url);
         return;
       }
@@ -462,5 +462,21 @@ export default function CartPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CartPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="cart-page">
+          <div className="cart-shell">
+            <div className="cart-loading">Loading checkout…</div>
+          </div>
+        </main>
+      }
+    >
+      <CartPageContent />
+    </Suspense>
   );
 }

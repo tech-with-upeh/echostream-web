@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { verifyPayment, verifyVoucherCheckout } from "@/lib/api";
 
 function getPaymentFlow(reference: string | null, requestedFlow: string | null) {
@@ -20,7 +20,7 @@ function getPaymentFlow(reference: string | null, requestedFlow: string | null) 
   return "paystack";
 }
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const params = useSearchParams();
   const reference = params.get("reference");
   const requestedFlow = params.get("flow");
@@ -73,5 +73,22 @@ export default function PaymentSuccessPage() {
         </Link>
       </section>
     </main>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center px-6 py-24">
+          <section className="w-full max-w-md flex flex-col items-center text-center">
+            <img src="/success.svg" alt="Successful Payment" className="w-24 h-24 mb-8" />
+            <p className="mt-3 text-base text-neutral-500 leading-relaxed">Verifying your payment…</p>
+          </section>
+        </main>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
