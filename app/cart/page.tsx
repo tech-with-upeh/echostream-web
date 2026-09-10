@@ -438,12 +438,12 @@ function CartPageContent() {
               type="button"
               className="checkout-button"
               onClick={checkout}
-              disabled={
+              disabled={Boolean(
                 checkoutLoading ||
                 loadingQuote ||
                 (user && isUpgrade && !quote) ||
                 (user && !isUpgrade && !voucherQuote)
-              }
+              )}
             >
               {checkoutLoading
                 ? "Processing…"
@@ -460,7 +460,10 @@ function CartPageContent() {
                         : "Use credit & subscribe"}
             </button>
 
-            <p className="secure-copy">Secure checkout powered by Paystack.</p>
+            <p className="text-xs pt-2.5 text-gray-500 flex items-center justify-center gap-1">
+  Secure checkout powered by <span className="font-semibold ">Paystack</span>
+</p>
+
           </aside>
         </div>
       </div>
