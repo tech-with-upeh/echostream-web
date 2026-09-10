@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { IonIcon } from "@ionic/react";
 import { checkmark, arrowForward } from "ionicons/icons";
 import { useEffect, useState } from "react";
@@ -21,29 +20,36 @@ type Plan = {
   button: string;
   popular?: boolean;
 };
+
 const PLANS: Plan[] = [
   {
     name: "Starter",
     price: "$0",
-    description:
-      "Essential tools for individual creators to begin their journey.",
+    description: "Get your stream talking.",
     features: [
-      "Basic AI generation (100 credits/mo)",
-      "Standard export resolution",
-      "Community support access",
+      "Text-to-speech for stream messages",
+      "Basic voice selection",
+      "Basic message filtering",
+      "Basic audience controls",
+      "Basic queue functionality",
+      "Basic TTS settings",
+      "Limited usage and features",
     ],
     button: "Get Started",
   },
   {
     name: "Essential",
     price: "$5",
-    description:
-      "The definitive toolkit for professional creators and daily users.",
+    description: "More control. More interaction. More ways to engage your audience.",
     features: [
-      "Unlimited basic generations",
-      "High-fidelity 4K exports",
-      "Priority render queue",
-      "Custom style training (up to 5)",
+      "Everything in Starter",
+      "Expanded voice selection",
+      "More advanced message filtering",
+      "Audience permissions",
+      "Better queue controls",
+      "Gift and message TTS",
+      "More TTS customization",
+      "Higher usage limits",
     ],
     button: "Upgrade Now",
     popular: true,
@@ -51,33 +57,47 @@ const PLANS: Plan[] = [
   {
     name: "Pro",
     price: "$10",
-    description:
-      "Uncompromised power for studios and enterprise-scale workflows.",
+    description: "Your stream. Your voice. Your rules.",
     features: [
       "Everything in Essential",
-      "API access & documentation",
-      "Unlimited custom style training",
-      "Dedicated account manager",
+      "AI voice cloning",
+      "Custom cloned voices",
+      "Fish Audio and advanced voice options",
+      "Advanced spam protection",
+      "Advanced audience controls",
+      "Advanced queue controls",
+      "Queue sound alerts",
+      "Custom audio alerts",
+      "More powerful message filtering",
+      "Advanced TTS preferences",
+      "Higher usage limits",
+      "Pro-only voice features",
     ],
     button: "Upgrade Now",
   },
 ];
+
 const PLAN_RANK: Record<string, number> = { starter: 0, essential: 1, pro: 2 };
 
 function getCta(planName: string, user: CurrentUser | null) {
-  if (!user)
+  if (!user) {
     return {
       label: "Get Started",
-      href: "/cart?plan=" + planName.toLowerCase(),
+      href: `/cart?plan=${planName.toLowerCase()}`,
     };
+  }
+
   const currentPlan = user.plan.toLowerCase();
   const targetPlan = planName.toLowerCase();
   const currentRank = PLAN_RANK[currentPlan] ?? 0;
   const targetRank = PLAN_RANK[targetPlan] ?? 0;
-  if (targetPlan === currentPlan)
+
+  if (targetPlan === currentPlan) {
     return targetPlan === "starter"
       ? { label: "Current plan", href: "/dashboard" }
       : { label: "Cancel", href: "/cancel-sub" };
+  }
+
   return targetRank > currentRank
     ? { label: "Upgrade", href: `/cart?plan=${targetPlan}` }
     : { label: "Downgrade", href: "/dashboard/subs-manage" };
@@ -91,6 +111,7 @@ export default function PricingPage() {
 
   useEffect(() => {
     let mounted = true;
+
     getCurrentUser()
       .then((data) => {
         cacheCurrentUser(data);
@@ -102,6 +123,7 @@ export default function PricingPage() {
       .finally(() => {
         if (mounted) setSessionChecked(true);
       });
+
     return () => {
       mounted = false;
     };
@@ -110,18 +132,18 @@ export default function PricingPage() {
   return (
     <main className="pricing-page">
       <section className="pricing-hero">
-        
         <div className="pricing-heading">
-          <h1>Atmospheric Precision.</h1>
-          <h2>Choose your tier.</h2>
+          <h1>Choose your tier.</h1>
           <p>
-            Unlock the full potential of your AI workflow with tools designed
-            for cinematic fidelity.
+            Pick the EchoStream plan that gives your stream the voices,
+            controls, and interaction you need.
           </p>
         </div>
+
         <div className="pricing-plans">
           {PLANS.map((plan) => {
             const cta = getCta(plan.name, user);
+
             return (
               <article
                 className={`pricing-card-wrap${plan.popular ? " pricing-card-popular" : ""}`}
@@ -130,6 +152,7 @@ export default function PricingPage() {
                 {plan.popular && (
                   <span className="pricing-badge">BEST VALUE</span>
                 )}
+
                 <div className="pricing-card">
                   <h3>{plan.name}</h3>
                   <div className="pricing-price">
@@ -138,6 +161,7 @@ export default function PricingPage() {
                   </div>
                   <p className="pricing-description">{plan.description}</p>
                   <div className="pricing-divider" />
+
                   <ul>
                     {plan.features.map((feature) => (
                       <li key={feature}>
@@ -148,6 +172,7 @@ export default function PricingPage() {
                       </li>
                     ))}
                   </ul>
+
                   <div className="pricing-button-wrap">
                     <Link
                       href={cta.href}
@@ -172,6 +197,7 @@ export default function PricingPage() {
             );
           })}
         </div>
+
         <p className="pricing-legal">
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
