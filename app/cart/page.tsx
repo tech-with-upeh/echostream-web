@@ -438,7 +438,12 @@ function CartPageContent() {
               type="button"
               className="checkout-button"
               onClick={checkout}
-              disabled={checkoutLoading || loadingQuote || (isUpgrade && !quote) || (!isUpgrade && !voucherQuote)}
+              disabled={
+                checkoutLoading ||
+                loadingQuote ||
+                (user && isUpgrade && !quote) ||
+                (user && !isUpgrade && !voucherQuote)
+              }
             >
               {checkoutLoading
                 ? "Processing…"
@@ -454,6 +459,8 @@ function CartPageContent() {
                         ? "Continue to checkout"
                         : "Use credit & subscribe"}
             </button>
+
+            <p className="secure-copy">Secure checkout powered by Paystack.</p>
           </aside>
         </div>
       </div>
@@ -463,15 +470,13 @@ function CartPageContent() {
 
 export default function CartPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="cart-page">
-          <div className="cart-shell">
-            <div className="cart-loading">Loading checkout…</div>
-          </div>
-        </main>
-      }
-    >
+    <Suspense fallback={
+      <main className="cart-page">
+        <div className="cart-shell">
+          <div className="cart-loading">Loading checkout…</div>
+        </div>
+      </main>
+    }>
       <CartPageContent />
     </Suspense>
   );
