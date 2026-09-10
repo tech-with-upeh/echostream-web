@@ -20,6 +20,7 @@ export default function Navbar() {
           <div className="nav-links">
             <a href="/about" onClick={closeMenu}>About</a>
             <a href="/features" onClick={closeMenu}>Features</a>
+            <a href="/pricing" onClick={closeMenu}>Pricing</a>
             <a href="/#how-it-works" onClick={closeMenu}>How It Works</a>
             <a href="/contact" onClick={closeMenu}>Contact</a>
           </div>
