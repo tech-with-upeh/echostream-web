@@ -26,8 +26,8 @@ import "../pricing/pricing.css";
 import "./cart.css";
 
 const PLANS = {
-  essential: { name: "Essential", monthly: 1600, yearly: 16000 },
-  pro: { name: "Pro", monthly: 3200, yearly: 32000 },
+  essential: { name: "Essential", monthly: 5, yearly: 60 },
+  pro: { name: "Pro", monthly: 10, yearly: 120 },
 } as const;
 
 const PLAN_RANK = { starter: 0, essential: 1, pro: 2 } as const;
@@ -35,7 +35,7 @@ const PLAN_RANK = { starter: 0, essential: 1, pro: 2 } as const;
 type Duration = "month" | "year";
 
 function money(value: number) {
-  return `₦${Math.round(value).toLocaleString()}`;
+  return `$${Math.round(value).toLocaleString()}`;
 }
 
 function humanize(value: string | null | undefined) {
@@ -222,10 +222,6 @@ function CartPageContent() {
         result = await subscribeToPlan(planKey, duration);
       }
 
-      // A fully credit-covered checkout is already completed by the backend.
-      // It returns a local reference for auditing, not a Paystack transaction.
-      // Do not send that reference to either payment verifier: Paystack will
-      // correctly report "transaction not found" because no transaction exists.
       if ("payment_method" in result && "status" in result && result.status === "success" && result.payment_method === "voucher_credit") {
         router.push("/dashboard");
         return;
