@@ -24,7 +24,7 @@ type Plan = {
 const PLANS: Plan[] = [
   {
     name: "Starter",
-    price: "₦0",
+    price: "$0",
     description:
       "Essential tools for individual creators to begin their journey.",
     features: [
@@ -36,7 +36,7 @@ const PLANS: Plan[] = [
   },
   {
     name: "Essential",
-    price: "₦1,600",
+    price: "$5",
     description:
       "The definitive toolkit for professional creators and daily users.",
     features: [
@@ -50,7 +50,7 @@ const PLANS: Plan[] = [
   },
   {
     name: "Pro",
-    price: "₦3,200",
+    price: "$10",
     description:
       "Uncompromised power for studios and enterprise-scale workflows.",
     features: [
